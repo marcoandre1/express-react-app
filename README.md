@@ -400,3 +400,78 @@ npm run dev
 ```
 
 ## Add Routing and Navigation
+
+### Add "Main" component whose contents will change based on URL
+
+```console
+npm install react-router-dom --save
+npm install --save history
+```
+
+- Add a new file at `store/history.jsx`:
+
+```jsx
+import { createBrowserHistory} from "history";
+
+export const history = createBrowserHistory();
+```
+
+- Modify the `Main.jsx` to add the `Router`:
+
+```jsx
+
+```
+
+### Create new navigation component to go alongside dashboard
+
+- Add a new component `components/Navigation.jsx`:
+
+```jsx
+/**
+ * The navigation component is present on all non-login pages,
+ * and contains a link back to the dashboard, and the user's name.
+ */
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import React from 'react';
+
+const Navigation = ()=>(
+    <div className="header">
+        <Link to="/dashboard">
+            <h1>
+                My Application
+            </h1>
+        </Link>
+    </div>
+);
+
+export const ConnectedNavigation = connect(state=>state)(Navigation);
+```
+
+- Import the `Navigation` component to `Main.jsx`:
+
+```jsx
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from '../store';
+import { ConnectedDashboard } from "./Dashboard";
+import { Router, Route } from 'react-router-dom';
+import { history } from "../store/history";
+import { ConnectedNavigation } from "./Navigation";
+
+export const Main = ()=>(
+    <Router history={ history }>
+        <Provider store={store}>
+            <div className="container mt-3">
+                <ConnectedNavigation/>
+                {/*<ConnectedDashboard/>*/}
+                <Route
+                    exact
+                    path={"/dashboard"}
+                    render={ () => (<ConnectedDashboard/>)}
+                />
+            </div>
+        </Provider>
+    </Router>
+);
+```
