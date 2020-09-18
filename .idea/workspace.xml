@@ -2,14 +2,11 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="7096447e-8aae-4edc-ae4c-4f6b1b277e39" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/app/store/mutations.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/app/store/sagas.mock.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/components/TaskList.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/TaskList.jsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/components/Main.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/Main.jsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app/store/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/store/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/store/sagas.mock.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/store/sagas.mock.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -60,7 +57,8 @@
       <workItem from="1599824441747" duration="129000" />
       <workItem from="1599830979306" duration="11266000" />
       <workItem from="1600045907235" duration="5940000" />
-      <workItem from="1600429311216" duration="4196000" />
+      <workItem from="1600429311216" duration="4259000" />
+      <workItem from="1600459462218" duration="804000" />
     </task>
     <servers />
   </component>

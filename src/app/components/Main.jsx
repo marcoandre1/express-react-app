@@ -19,4 +19,4 @@ export const Main = ()=>(
             </div>
         </Provider>
     </BrowserRouter>
-);
+)

@@ -419,7 +419,28 @@ export const history = createBrowserHistory();
 - Modify the `Main.jsx` to add the `Router`:
 
 ```jsx
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from '../store';
+import { ConnectedDashboard } from './Dashboard';
+import { BrowserRouter, Route, } from 'react-router-dom';
+import { ConnectedNavigation } from './Navigation';
 
+export const Main = ()=>(
+    <BrowserRouter>
+        <Provider store={store}>
+            <div className="container mt-3">
+                <ConnectedNavigation/>
+                {/*<ConnectedDashboard/>*/}
+                <Route
+                    exact
+                    path="/dashboard"
+                    render={ () => (<ConnectedDashboard/>)}
+                />
+            </div>
+        </Provider>
+    </BrowserRouter>
+)
 ```
 
 ### Create new navigation component to go alongside dashboard
@@ -476,7 +497,9 @@ export const Main = ()=>(
 );
 ```
 
-## Create saga to generate random task ID, create task dispatch action containing details
+## Add new tasks
+
+### Create saga to generate random task ID, create task dispatch action containing details
 
 - Update `TaskList.jsx` to include a button and the `createNewTask` method:
 
@@ -605,7 +628,7 @@ export const store = createStore(
 - Now, whenever we dispatch an action, we will see it in the console.
 
 
-## Create a "mock" saga to interact with the server
+### Create a "mock" saga to interact with the server
 
 - We need to add a saga for every action that needs some randomness, like the `TASK_CREATION`.
 
@@ -621,7 +644,7 @@ npm install --save uuid
 import { take, put, select } from 'redux-saga/effects';
 
 import * as mutations from './mutations';
-import uuid from 'uuid';
+import {v1 as uuid} from 'uuid';
 
 /**
  * Reducers cannot have any randomness (the must be deterministic)
@@ -639,10 +662,52 @@ export function* taskCreationSaga(){
 }
 ```
 
-- Update `store/index.js` to incude `saga`:
+- Update `store/index.js` to include `saga`:
 
 ```js
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { defaultState } from '../../server/defaultState';
+import { createLogger} from 'redux-logger/src';
+import createSagaMiddleware from 'redux-saga';
 
+const sagaMiddleware = createSagaMiddleware();
+import * as sagas from './sagas.mock';
+import * as mutations from './mutations';
+
+export const store = createStore(
+    combineReducers({
+        tasks(tasks = defaultState.tasks, action) {
+            switch (action.type) {
+                case mutations.CREATE_TASK:
+                    // console.log(action);
+                    return [...tasks, {
+                        id:action.taskID,
+                        name:"New Task",
+                        group: action.groupID,
+                        owner: action.ownerID,
+                        isComplete: false
+                    }]
+            }
+            return tasks;
+        },
+        comments(comments = defaultState.comments) {
+            return comments;
+        },
+        groups(groups = defaultState.groups) {
+            return groups;
+        },
+        users(users = defaultState.users) {
+            return users;
+        }
+    }),
+    applyMiddleware(createLogger(), sagaMiddleware)
+);
+
+for (let saga in sagas) {
+    sagaMiddleware.run(sagas[saga]);
+}
 ```
 
+## Implementing tasks details Route
 
+### Displaying data

@@ -1,7 +1,7 @@
 import { take, put, select } from 'redux-saga/effects';
 
 import * as mutations from './mutations';
-import uuid from 'uuid';
+import {v1 as uuid} from 'uuid';
 
 /**
  * Reducers cannot have any randomness (the must be deterministic)
