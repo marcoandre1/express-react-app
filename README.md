@@ -475,3 +475,174 @@ export const Main = ()=>(
     </Router>
 );
 ```
+
+## Create saga to generate random task ID, create task dispatch action containing details
+
+- Update `TaskList.jsx` to include a button and the `createNewTask` method:
+
+```jsx
+import React from 'react';
+import { connect } from 'react-redux';
+
+export const TaskList = ({tasks, name, id, createNewTask})=>(
+    <div className="card p-2 m-2">
+        <h3>
+            {name}
+        </h3>
+        <div>
+            {tasks.map(task=>(
+                <div key={task.id}>{task.name}</div>
+            ))}
+        </div>
+        <button onClick={ () => createNewTask(id) }>Add New</button>
+    </div>
+);
+
+const mapStateToProps = (state, ownProps)=>{
+    let groupID = ownProps.id;
+    return {
+        name: ownProps.name,
+        id: groupID,
+        tasks: state.tasks.filter(task=>task.group === groupID)
+    };
+};
+
+const mapDispatchToProps = (dispatch, ownProps)=>{
+    return {
+        createNewTask(id) {
+            console.log("Creating new task...", id);
+        }
+    };
+};
+
+export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
+```
+
+-You should be able to see the `Add New` button and if you enter the console, it creates a task for the right group!
+
+- Create the `app/store/mutations.js` file:
+
+```jsx
+export const REQUEST_TASK_CREATION = `REQUEST_TASK_CREATION`;
+export const CREATE_TASK = `CREATE_TASK`;
+
+export const requestTaskCreation = (groupID)=>({
+    type:REQUEST_TASK_CREATION,
+    groupID
+});
+
+export const createTask = (taskID, groupID, ownerID)=>({
+    type:CREATE_TASK,
+    taskID,
+    groupID,
+    ownerID
+});
+```
+
+- Update `TaskList` to include the `mutations`:
+
+```jsx
+import React from 'react';
+import { connect } from 'react-redux';
+import { requestTaskCreation} from '../store/mutations';
+
+export const TaskList = ({tasks, name, id, createNewTask})=>(
+    <div className="card p-2 m-2">
+        <h3>
+            {name}
+        </h3>
+        <div>
+            {tasks.map(task=>(
+                <div key={task.id}>{task.name}</div>
+            ))}
+        </div>
+        <button onClick={ () => createNewTask(id) }>Add New</button>
+    </div>
+);
+
+const mapStateToProps = (state, ownProps)=>{
+    let groupID = ownProps.id;
+    return {
+        name: ownProps.name,
+        id: groupID,
+        tasks: state.tasks.filter(task=>task.group === groupID)
+    };
+};
+
+const mapDispatchToProps = (dispatch, ownProps)=>{
+    return {
+        createNewTask(id) {
+            console.log("Creating new task...", id);
+            dispatch(requestTaskCreation(id));
+        }
+    };
+};
+
+export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
+```
+
+To include login, add the next packages:
+
+```console
+npm install --save redux-logger redux-saga
+```
+
+- Update the `store/index.js` file to include `createLogger`:
+
+```js
+import { createStore, applyMiddleware } from 'redux';
+import { defaultState } from '../../server/defaultState';
+import { createLogger} from 'redux-logger/src';
+
+export const store = createStore(
+    function reducer (state = defaultState, action) {
+        return state;
+    },
+    applyMiddleware(createLogger())
+);
+```
+
+- Now, whenever we dispatch an action, we will see it in the console.
+
+
+## Create a "mock" saga to interact with the server
+
+- We need to add a saga for every action that needs some randomness, like the `TASK_CREATION`.
+
+- Install `uuid` to generate random `id`:
+
+```console
+npm install --save uuid
+```
+
+- Add the `store/sagas.mock.js` file:
+
+```js
+import { take, put, select } from 'redux-saga/effects';
+
+import * as mutations from './mutations';
+import uuid from 'uuid';
+
+/**
+ * Reducers cannot have any randomness (the must be deterministic)
+ * Since the action of creating a task involves generating a random ID, it is not pure.
+ * When the response to an action is not deterministic in a Redux application, both Sagas and Thunks are appropriate.
+ */
+export function* taskCreationSaga(){
+    while (true){
+        const {groupID} = yield take(mutations.REQUEST_TASK_CREATION);
+        const ownerID = 'U1';
+        const taskID = uuid();
+        yield put(mutations.createTask(taskID, groupID, ownerID));
+        console.log("Got group ID", groupID);
+    }
+}
+```
+
+- Update `store/index.js` to incude `saga`:
+
+```js
+
+```
+
+
