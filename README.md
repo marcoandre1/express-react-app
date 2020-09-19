@@ -711,3 +711,162 @@ for (let saga in sagas) {
 ## Implementing tasks details Route
 
 ### Displaying data
+
+## Add route which displays the details of a single task
+
+- Create a new file `app/components/TaskDetail.jsx`:
+
+```jsx
+/**
+ * The task detail component route is a more sophisticated form that has many different fields.
+ * The component automatically calls the REST API [via a mutation] to update the server on every change.
+ */
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+
+const TaskDetail = ({
+                        id,
+                        comments,
+                        task,
+                        isComplete,
+                        groups
+                    })=>{
+    return (
+        <div className="card p-3 col-6">
+            <div>
+                <input type="text" value={task.name} className="form-control form-control-lg"/>
+            </div>
+
+            <form className="form-inline">
+                <span className="mr-4">
+                    Change Group
+                </span>
+                <select className="form-control">
+                    {groups.map(group=>(
+                        <option key={group.id} value={group.id}>
+                            {group.name}
+                        </option>
+                    ))}
+                </select>
+            </form>
+
+            <form className="form-inline">
+                <input type="text" name="commentContents" autoComplete="off" placeholder="Add a comment" className="form-control"/>
+                <button type="submit" className="btn">Submit</button>
+            </form>
+
+            <div>
+                <Link to="/dashboard">
+                    <button className="btn btn-primary mt-2">
+                        Done
+                    </button>
+                </Link>
+            </div>
+        </div>
+    )
+}
+
+function mapStateToProps(state,ownProps){
+    let id = ownProps.match.params.id;
+    let task = state.tasks.find(task=>task.id === id);
+    let groups = state.groups;
+
+    return {
+        id,
+        task,
+        groups,
+        isComplete: task.isComplete
+    }
+}
+
+export const ConnectedTaskDetail = connect(mapStateToProps)(TaskDetail);
+```
+
+- Update `components/Main.jsx` to include a route for `TaskDetail`:
+
+```jsx
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from '../store';
+import { ConnectedDashboard } from './Dashboard';
+import { BrowserRouter, Route, } from 'react-router-dom';
+import { ConnectedNavigation } from './Navigation';
+import { ConnectedTaskDetail} from './TaskDetail';
+
+export const Main = ()=>(
+    <BrowserRouter>
+        <Provider store={store}>
+            <div className="container mt-3">
+                <ConnectedNavigation/>
+                {/*<ConnectedDashboard/>*/}
+                <Route
+                    exact
+                    path="/dashboard"
+                    render={ () => (<ConnectedDashboard/>)}
+                />
+                <Route
+                    exact
+                    path="/task/:id"
+                    render={ ({ match }) => (<ConnectedTaskDetail match={ match }/>)}
+                />
+            </div>
+        </Provider>
+    </BrowserRouter>
+)
+```
+
+- Update `components/TaskList.jsx` to add links to each task:
+
+
+```jsx
+import React from 'react';
+import { connect } from 'react-redux';
+import { requestTaskCreation} from '../store/mutations';
+import { Link} from 'react-router-dom';
+
+export const TaskList = ({tasks, name, id, createNewTask})=>(
+    <div className="card p-2 m-2">
+        <h3>
+            {name}
+        </h3>
+        <div>
+            {tasks.map(task=>(
+                <Link to={`/task/${task.id}`} key={task.id}>
+                    <div>{task.name}</div>
+                </Link>
+            ))}
+        </div>
+        <button onClick={ () => createNewTask(id) }>Add New</button>
+    </div>
+);
+
+const mapStateToProps = (state, ownProps)=>{
+    let groupID = ownProps.id;
+    return {
+        name: ownProps.name,
+        id: groupID,
+        tasks: state.tasks.filter(task=>task.group === groupID)
+    };
+};
+
+const mapDispatchToProps = (dispatch, ownProps)=>{
+    return {
+        createNewTask(id) {
+            console.log("Creating new task...", id);
+            dispatch(requestTaskCreation(id));
+        }
+    };
+};
+
+export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
+```
+
+
+## Route will implement forms and buttons to allow user to change data
+
+## Router will be used to indicate which task should be viewed
+
+## Interactions which mutate  the state will be added later
+
+
