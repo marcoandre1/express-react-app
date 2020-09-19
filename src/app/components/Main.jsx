@@ -4,6 +4,7 @@ import { store } from '../store';
 import { ConnectedDashboard } from './Dashboard';
 import { BrowserRouter, Route, } from 'react-router-dom';
 import { ConnectedNavigation } from './Navigation';
+import { ConnectedTaskDetail} from './TaskDetail';
 
 export const Main = ()=>(
     <BrowserRouter>
@@ -15,6 +16,11 @@ export const Main = ()=>(
                     exact
                     path="/dashboard"
                     render={ () => (<ConnectedDashboard/>)}
+                />
+                <Route
+                    exact
+                    path="/task/:id"
+                    render={ ({ match }) => (<ConnectedTaskDetail match={ match }/>)}
                 />
             </div>
         </Provider>
