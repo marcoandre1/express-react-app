@@ -712,7 +712,10 @@ for (let saga in sagas) {
 
 ### Displaying data
 
-## Add route which displays the details of a single task
+- Add route which displays the details of a single task
+- Route will implement forms and buttons to allow user to change data
+- Router will be used to indicate which task should be viewed
+- Interactions which mutate the state will be added later
 
 - Create a new file `app/components/TaskDetail.jsx`:
 
@@ -818,7 +821,6 @@ export const Main = ()=>(
 
 - Update `components/TaskList.jsx` to add links to each task:
 
-
 ```jsx
 import React from 'react';
 import { connect } from 'react-redux';
@@ -862,11 +864,27 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
+### Update data
 
-## Route will implement forms and buttons to allow user to change data
+#### Add methods which _dispatch_ actions when form elements of the task detail are interacted with
 
-## Router will be used to indicate which task should be viewed
+- Update `components/TaskDetail.jsx`:
 
-## Interactions which mutate  the state will be added later
+```jsx
 
+```
+
+- Update `store/mutations.js`:
+
+```js
+
+```
+
+#### Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
+
+- Update `store/index.js` _(reducer)_:
+
+```js
+
+```
 

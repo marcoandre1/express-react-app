@@ -5,25 +5,34 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import * as mutations from '../store/mutations';
 
 const TaskDetail = ({
                         id,
                         comments,
                         task,
                         isComplete,
-                        groups
+                        groups,
+
+                        setTaskCompletion,
+                        setTaskGroup,
+                        setTaskName
                     })=>{
     return (
         <div className="card p-3 col-6">
             <div>
-                <input type="text" value={task.name} className="form-control form-control-lg"/>
+                <input type="text" value={task.name} onChange={setTaskName} className="form-control form-control-lg"/>
             </div>
+
+            <button  className="btn btn-primary ml-2" onClick={() => setTaskCompletion(id,!isComplete)}>
+                {isComplete ? `Reopen` : `Complete`} This Task
+            </button>
 
             <form className="form-inline">
                 <span className="mr-4">
                     Change Group
                 </span>
-                <select className="form-control">
+                <select onChange={setTaskGroup} value={task.group} className="form-control">
                     {groups.map(group=>(
                         <option key={group.id} value={group.id}>
                             {group.name}
@@ -61,4 +70,19 @@ function mapStateToProps(state,ownProps){
     }
 }
 
-export const ConnectedTaskDetail = connect(mapStateToProps)(TaskDetail);
+function mapDispatchToProps(dispatch, ownProps){
+    let id = ownProps.match.params.id;
+    return {
+        setTaskCompletion(id,isComplete){
+            dispatch(mutations.setTaskCompletion(id,isComplete));
+        },
+        setTaskGroup(e){
+            dispatch(mutations.setTaskGroup(id,e.target.value));
+        },
+        setTaskName(e){
+            dispatch(mutations.setTaskName(id,e.target.value));
+        }
+    }
+}
+
+export const ConnectedTaskDetail = connect(mapStateToProps, mapDispatchToProps)(TaskDetail);
