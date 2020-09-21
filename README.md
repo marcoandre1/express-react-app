@@ -871,13 +871,134 @@ export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(Ta
 - Update `components/TaskDetail.jsx`:
 
 ```jsx
+/**
+ * The task detail component route is a more sophisticated form that has many different fields.
+ * The component automatically calls the REST API [via a mutation] to update the server on every change.
+ */
+import React from 'react';
+import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
+import * as mutations from '../store/mutations';
 
+const TaskDetail = ({
+                        id,
+                        comments,
+                        task,
+                        isComplete,
+                        groups,
+
+                        setTaskCompletion,
+                        setTaskGroup,
+                        setTaskName
+                    })=>{
+    return (
+        <div className="card p-3 col-6">
+            <div>
+                <input type="text" value={task.name} onChange={setTaskName} className="form-control form-control-lg"/>
+            </div>
+
+            <button  className="btn btn-primary ml-2" onClick={() => setTaskCompletion(id,!isComplete)}>
+                {isComplete ? `Reopen` : `Complete`} This Task
+            </button>
+
+            <form className="form-inline">
+                <span className="mr-4">
+                    Change Group
+                </span>
+                <select onChange={setTaskGroup} value={task.group} className="form-control">
+                    {groups.map(group=>(
+                        <option key={group.id} value={group.id}>
+                            {group.name}
+                        </option>
+                    ))}
+                </select>
+            </form>
+
+            <form className="form-inline">
+                <input type="text" name="commentContents" autoComplete="off" placeholder="Add a comment" className="form-control"/>
+                <button type="submit" className="btn">Submit</button>
+            </form>
+
+            <div>
+                <Link to="/dashboard">
+                    <button className="btn btn-primary mt-2">
+                        Done
+                    </button>
+                </Link>
+            </div>
+        </div>
+    )
+}
+
+function mapStateToProps(state,ownProps){
+    let id = ownProps.match.params.id;
+    let task = state.tasks.find(task=>task.id === id);
+    let groups = state.groups;
+
+    return {
+        id,
+        task,
+        groups,
+        isComplete: task.isComplete
+    }
+}
+
+function mapDispatchToProps(dispatch, ownProps){
+    let id = ownProps.match.params.id;
+    return {
+        setTaskCompletion(id,isComplete){
+            dispatch(mutations.setTaskCompletion(id,isComplete));
+        },
+        setTaskGroup(e){
+            dispatch(mutations.setTaskGroup(id,e.target.value));
+        },
+        setTaskName(e){
+            dispatch(mutations.setTaskName(id,e.target.value));
+        }
+    }
+}
+
+export const ConnectedTaskDetail = connect(mapStateToProps, mapDispatchToProps)(TaskDetail);
 ```
 
 - Update `store/mutations.js`:
 
 ```js
+export const REQUEST_TASK_CREATION = `REQUEST_TASK_CREATION`;
+export const CREATE_TASK = `CREATE_TASK`;
+export const SET_TASK_COMPLETE = `SET_TASK_COMPLETE`;
+export const SET_TASK_GROUP = `SET_TASK_GROUP`;
+export const SET_TASK_NAME = `SET_TASK_NAME`;
 
+export const requestTaskCreation = (groupID)=>({
+    type:REQUEST_TASK_CREATION,
+    groupID
+});
+
+export const createTask = (taskID, groupID, ownerID)=>({
+    type:CREATE_TASK,
+    taskID,
+    groupID,
+    ownerID
+});
+
+export const setTaskCompletion = (id, isComplete)=>({
+    type:SET_TASK_COMPLETE,
+    taskID: id,
+    isComplete
+});
+
+export const setTaskGroup = (id, groupID)=>({
+    type:SET_TASK_GROUP,
+    taskID: id,
+    groupID
+});
+
+export const setTaskName = (id, name)=>({
+    type:SET_TASK_NAME,
+    taskID: id,
+    name
+});
 ```
 
 #### Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
@@ -885,6 +1006,71 @@ export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(Ta
 - Update `store/index.js` _(reducer)_:
 
 ```js
+import { createStore, applyMiddleware, combineReducers } from 'redux';
+import { defaultState } from '../../server/defaultState';
+import { createLogger} from 'redux-logger/src';
+import createSagaMiddleware from 'redux-saga';
 
+const sagaMiddleware = createSagaMiddleware();
+import * as sagas from './sagas.mock';
+import * as mutations from './mutations';
+
+export const store = createStore(
+    combineReducers({
+        tasks(tasks = defaultState.tasks, action) {
+            switch (action.type) {
+                case mutations.CREATE_TASK:
+                    return [...tasks, {
+                        id:action.taskID,
+                        name:"New Task",
+                        group: action.groupID,
+                        owner: action.ownerID,
+                        isComplete: false
+                    }]
+                case mutations.SET_TASK_COMPLETE:
+                    return tasks.map(task => {
+                       return (task.id === action.taskID) ?
+                           {...task, isComplete:action.isComplete} :
+                           task;
+                    })
+                case mutations.SET_TASK_NAME:
+                    return tasks.map(task => {
+                        return (task.id === action.taskID) ?
+                            {...task, name:action.name} :
+                            task;
+                    })
+                case mutations.SET_TASK_GROUP:
+                    return tasks.map(task => {
+                        return (task.id === action.taskID) ?
+                            {...task, group:action.groupID} :
+                            task;
+                    });
+            }
+            return tasks;
+        },
+        comments(comments = defaultState.comments) {
+            return comments;
+        },
+        groups(groups = defaultState.groups) {
+            return groups;
+        },
+        users(users = defaultState.users) {
+            return users;
+        }
+    }),
+    applyMiddleware(createLogger(), sagaMiddleware)
+);
+
+for (let saga in sagas) {
+    sagaMiddleware.run(sagas[saga]);
+}
 ```
 
+#### Front End Summary
+
+- Webpack is useful as it allows us to write code using imports and with JSX
+- Redux is a reliable and convenient way to store and manage our application state
+- React components often contain forms used by the end user
+- Using Ract-Redux, React components can update automatically to reflect data
+
+# Creating Persistent Data storage with Node, Express, and MongoDB

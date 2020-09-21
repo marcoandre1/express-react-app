@@ -4,9 +4,6 @@
     <list default="true" id="7096447e-8aae-4edc-ae4c-4f6b1b277e39" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/components/TaskDetail.jsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/components/TaskDetail.jsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/store/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/store/index.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app/store/mutations.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/store/mutations.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +60,8 @@
       <workItem from="1600520669751" duration="2327000" />
       <workItem from="1600523166001" duration="28000" />
       <workItem from="1600608330920" duration="1326000" />
-      <workItem from="1600695622033" duration="5032000" />
+      <workItem from="1600695622033" duration="5720000" />
+      <workItem from="1600703803053" duration="298000" />
     </task>
     <servers />
   </component>
