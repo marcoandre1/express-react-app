@@ -1,12 +1,37 @@
-pluralsight.com/author/troy-hunt
+# Express-react-app
 
-# Setting up Webpack to Compile our application
+This repo was built following <https://github.com/danielstern/express-react-fullstack>.
+
+## Demo Application
+
+React and Redux are used to display components. The Front End itself consists of forms and lists that reflect
+user's data. We use routing to determine which component to display.
+
+The Back End consists of a MongoDB component which stores data persistently in non-relational database. In the production 
+scenario, Express serves a static HTML page which then runs the client application. We use a REST API to communicate with 
+the Back End.
+
+## Security Considerations
+If security is a concern, you should look at:  
+<https://pluralsight.com/authors/troy-hunt>
+
+## Creating a View Layer with React and Redux
+
+Goal: Create a view layer which is fast, usable and easy to maintain.
+Limitation: Until we add back end in next module, data cannot be persisted.
+
+1. Set up Webpack to compile ES6 and JSX into JavaScript, compile app
+2. Create mock application state using Redux
+3. Create "dashboard" component to display list of tasks
+4. Create "task detail" where users can update tasks
+
+### Setting up Webpack to Compile our application
 
 1. `Webpack` is a library that uses `babel` which converts `.jsx` and `ES6` files into `.js` files.
 2. One thing `webpack` does that `babel` can't is it bundles set of files connected by `import` statements into one file.
 3. `Webpack` has a tool called `webpack-dev-server` which allow us to create an application in a fast and convenient way.
 
-## Install Webpack, Babel and other libraries needed for bundling and transpilation
+### Install Webpack, Babel and other libraries needed for bundling and transpilation
 
 - Create a `package.json` file:
 
@@ -20,7 +45,7 @@ npm init --yes
 npm install --save-dev webpack
 ```
 
-- Add `.gitignore` and add `node_modules`.
+- Add `.gitignore` file and add `node_modules` and `dist` to it.
 - Install other dependencies:
 
 ```console
@@ -30,9 +55,9 @@ npm install --save-dev @babel/node @babel/preset-env @babel/preset-react @babel/
 npm install --save-dev babel-loader
 ```
 
-## Create `.babelrc` file to define how `.jsx` and ES6 should be handled
+### Create `.babelrc` file to define how `.jsx` and ES6 should be handled
 
-- Add a `.babelrc` which is a json file that babel checks to determine how it should run:
+- Add a `.babelrc` file which is a json file that babel checks to determine how it should run:
 
 ```json
 {
@@ -47,7 +72,7 @@ npm install --save-dev babel-loader
 }
 ```
 
-## Create `webpack.config.js` file to describe how our app should be bundled
+### Create `webpack.config.js` file to describe how our app should be bundled
 
 - Add a `webpack.config.js` file:
 
@@ -81,7 +106,7 @@ module.exports = {
 
 - Add the entry file at ``src/app/index.jsx`:
 
-```
+```javascript
 console.log("Hello world!!!");
 ```
 
@@ -93,11 +118,10 @@ console.log("Hello world!!!");
 }
 ```
 
-- Add `dist` folder to `.gitignore`.
+### Create stubs for `index.html` and `index.jsx`, which will form the basis of our app
 
-## Create stubs for `index.html` and `index.jsx`, which will form the basis of our app
+- Add `index.html` to the root of the project:
 
-- Add `index.html`:
 ```html
 <head>
 
@@ -112,9 +136,9 @@ console.log("Hello world!!!");
 </body>
 ```
 
-## On completion, app should say "hello world" in JS and HTML
+### On completion, app should say "hello world" in JS and HTML
 
-- Define another script in `package.json`:
+- Define another script in `package.json` to launch the application:
 
 ```json
 {
@@ -122,17 +146,19 @@ console.log("Hello world!!!");
 }
 ```
 
-- Run the application
+- You can now run the application: `npm run dev`.
 
-```console
-npm run dev
-```
+### Overview of Redux
 
-# Implementing React Components and Redux State
+1. Manages underlying data.
+2. Application state can be easily accessed.
+3. Changing application state occurs only via actions.
+4. Redux state is provided to React components via React-Redux, a small connector library.
 
-## Create default application state as JSON file for development
+### Create default application state as JSON file for development
 
-- Add `src/server/defaultState.js`:
+- Add `src/server/defaultState.js` file:
+
 ```javascript
 export const defaultState = {
     users:[{
@@ -196,7 +222,7 @@ export const defaultState = {
 };
 ```
 
-## Create basic Redux store to provide state to application as necessary
+### Create basic Redux store to provide state to application as necessary
 
 - Install `Redux`:
 
@@ -225,9 +251,10 @@ import { store } from './store'
 console.log (store.getState());
 ```
 
-- Run the application. You should see an `Object` element in the `console` which contains all the data we specified in `src/server/defaultState.js`.
+> **NOTE:** remove `console.log (store.getState())` after testing but keep the import statement!
 
-## Adding a Dashboard Component
+- Run the application. You should see an `Object` element in the `console` which contains all the data 
+we specified in `src/server/defaultState.js`.
 
 ### Add React dashboard component to add as a "home page" for end user
 
