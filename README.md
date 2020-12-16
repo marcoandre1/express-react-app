@@ -1,6 +1,6 @@
 # Express-react-app
 
-This repo was built following <https://github.com/danielstern/express-react-fullstack>.
+This repo was built following <https://www.github.com/danielstern/express-react-fullstack>.
 
 ## Demo Application
 
@@ -13,7 +13,7 @@ the Back End.
 
 ## Security Considerations
 If security is a concern, you should look at:  
-<https://pluralsight.com/authors/troy-hunt>
+<https://www.pluralsight.com/authors/troy-hunt>
 
 ## Creating a View Layer with React and Redux
 
@@ -281,7 +281,7 @@ export const Dashboard = ({groups})=>(
 );
 ```
 
-- Modify the `app/index.jsx` file:
+- Update `app/index.jsx`:
 
 ```jsx
 import { store } from './store'
@@ -296,11 +296,9 @@ ReactDOM.render(
 );
 ```
 
-- Run the application:
+- Run the application: `npm run dev`.
 
-```console
-npm run dev
-```
+### Connect the Dashboard to the Redux store
 
 - Add the `Main` component at `src/app/components/Main.jsx`:
 
@@ -318,7 +316,7 @@ export const Main = ()=>(
 );
 ```
 
-- Modify the `index.jsx`:
+- Update `index.jsx` to load `Main` component:
 
 ```jsx
 import { store } from './store'
@@ -333,15 +331,31 @@ ReactDOM.render(
 );
 ```
 
-- Run the application:
+- Run the application: `npm run dev`.
+- Add `function mapStateToProps(state)` to `Dashboard` component and call `connect` from Redux.
+- Update `Main.jsx` and import the `ConnectedDashboard`:
 
-```console
-npm run dev
+```jsx
+import React from 'react';
+import { Provider } from 'react-redux';
+import { store } from '../store';
+import { ConnectedDashboard } from "./Dashboard";
+
+export const Main = ()=>(
+    <Provider store={store}>
+        <div className="container mt-3">
+            {/*Dashboard goes here.*/}
+            <ConnectedDashboard/>
+        </div>
+    </Provider>
+);
 ```
 
-### Dashboard will take application state that exists in DB and turn into components that end user can interact with
+- Run the application: `npm run dev`.
 
-- Add the `TaskList` component:
+### Create TaskList component
+
+- Add the `TaskList` component at `src/app/components/TaskList.jsx`:
 
 ```jsx
 import React from 'react';
@@ -372,7 +386,7 @@ const mapStateToProps = (state, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps)(TaskList);
 ```
 
-- Modify the `Dashboard` component:
+- Update the `Dashboard` component to include the `TaskList` component:
 
 ```jsx
 /**
@@ -402,48 +416,19 @@ function mapStateToProps(state) {
 export const ConnectedDashboard = connect(mapStateToProps)(Dashboard);
 ```
 
-- Modify the `Main.jsx`:
+### Add Routing and Navigation
 
-```jsx
-import React from 'react';
-import { Provider } from 'react-redux';
-import { store } from '../store';
-import { ConnectedDashboard } from "./Dashboard";
-
-export const Main = ()=>(
-    <Provider store={store}>
-        <div className="container mt-3">
-            {/*Dashboard goes here.*/}
-            <ConnectedDashboard/>
-        </div>
-    </Provider>
-);
-```
-
-- Run the application:
-
-```console
-npm run dev
-```
-
-## Add Routing and Navigation
+1. "Routing" is a term for when the form of the application is affected by the URL bar.
+2. `react-router` determines which React component to display based on URL.
+3. Good use of routing allows a lot of information to be codified in URL.
 
 ### Add "Main" component whose contents will change based on URL
 
-```console
-npm install react-router-dom --save
-npm install --save history
-```
+- Add `react-router-dom`: `npm install react-router-dom --save`.
 
-- Add a new file at `store/history.jsx`:
+> **NOTE:** in the original version, `history` was also installed but it seems deprecated.
 
-```jsx
-import { createBrowserHistory} from "history";
-
-export const history = createBrowserHistory();
-```
-
-- Modify the `Main.jsx` to add the `Router`:
+- Update `Main.jsx` to import `BrowserRouter` and `Route`:
 
 ```jsx
 import React from 'react';
@@ -472,7 +457,7 @@ export const Main = ()=>(
 
 ### Create new navigation component to go alongside dashboard
 
-- Add a new component `components/Navigation.jsx`:
+- Add a new `Navigation` component at `src/app/components/Navigation.jsx`:
 
 ```jsx
 /**
@@ -496,7 +481,7 @@ const Navigation = ()=>(
 export const ConnectedNavigation = connect(state=>state)(Navigation);
 ```
 
-- Import the `Navigation` component to `Main.jsx`:
+- Update `Main.jsx` to import the `Navigation` component :
 
 ```jsx
 import React from 'react';
@@ -524,11 +509,48 @@ export const Main = ()=>(
 );
 ```
 
-## Add new tasks
+### Add new tasks using Sagas
+
+1. Reducer must be updated to allow tasks array to be changed.
+2. Tasks need random ID, reducers can't be random, therefore **Saga** or **Thunk** is needed.
+3. Updated state is reflected automatically in React component appearance.
+
+#### Sagas in Brief
+
+1. Sagas run in the background of Redux applications.
+2. Respond to actions by generating "side-effects" (anything outside the app).
+3. One of only a few places where generators functions are found.
+
+#### Generators in Brief
+
+1. Standard JavaScript functions (non-generator) return a single value, instantly.
+2. Generators can return any number of values, not just one.
+3. Generator values can be returned at a later time (asynchronously).
+
+- Example:
+
+```javascript
+function* myGenerator() {
+    let meaning = 42;
+
+    while (true) {
+        meaning += 1;
+        yield meaning;
+    }
+}
+```
+
+- `function*` indicates special generator function type.
+- generator contains normal javascript code.
+- `while (true)` loops can exist in generator functions.
+- `Yield` keyword returns value to the generator's caller (can return many values).
+- Yields 43, 44, 45, ...
+
+For more info, take a look at: <https://www.pluralsight.com/courses/redux-saga>
 
 ### Create saga to generate random task ID, create task dispatch action containing details
 
-- Update `TaskList.jsx` to include a button and the `createNewTask` method:
+- Update `TaskList.jsx` to include a button to create a _new task_ and add the `createNewTask` method:
 
 ```jsx
 import React from 'react';
@@ -568,9 +590,8 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
--You should be able to see the `Add New` button and if you enter the console, it creates a task for the right group!
-
-- Create the `app/store/mutations.js` file:
+- You should be able to see the `Add New` button and if you enter the console, it creates a task for the right group!
+- Create a new file at `app/store/mutations.js`. This file is a template for all the changes to the application state:
 
 ```jsx
 export const REQUEST_TASK_CREATION = `REQUEST_TASK_CREATION`;
@@ -589,12 +610,12 @@ export const createTask = (taskID, groupID, ownerID)=>({
 });
 ```
 
-- Update `TaskList` to include the `mutations`:
+- Update `TaskList` to import `requestTaskCreation`:
 
 ```jsx
 import React from 'react';
 import { connect } from 'react-redux';
-import { requestTaskCreation} from '../store/mutations';
+import { requestTaskCreation } from '../store/mutations';
 
 export const TaskList = ({tasks, name, id, createNewTask})=>(
     <div className="card p-2 m-2">
@@ -631,18 +652,14 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
-To include login, add the next packages:
-
-```console
-npm install --save redux-logger redux-saga
-```
-
-- Update the `store/index.js` file to include `createLogger`:
+- To help us understand what is going on, we want to add _logging_ **(console logging, not user login!)**.
+- Add new dependencies: `npm install --save redux-logger redux-saga`.
+- Update the `store/index.js` file to import `createLogger` and `applyMiddleware`:
 
 ```js
 import { createStore, applyMiddleware } from 'redux';
 import { defaultState } from '../../server/defaultState';
-import { createLogger} from 'redux-logger/src';
+import { createLogger } from 'redux-logger/src';
 
 export const store = createStore(
     function reducer (state = defaultState, action) {
@@ -652,20 +669,16 @@ export const store = createStore(
 );
 ```
 
-- Now, whenever we dispatch an action, we will see it in the console.
+- Now, whenever we dispatch an action, we will see it in the console!
 
+### Create a "mock" saga to interact with the "server" (the server doesn't exist yet)
 
-### Create a "mock" saga to interact with the server
-
-- We need to add a saga for every action that needs some randomness, like the `TASK_CREATION`.
-
-- Install `uuid` to generate random `id`:
-
-```console
-npm install --save uuid
-```
-
-- Add the `store/sagas.mock.js` file:
+- Usually actions change the state of the application. However, for actions that require any kind of randomness like 
+the task creation, we need some kind of intermediary, in other words a **saga**.
+- Add a saga to deal with this unusual request.
+- Install `uuid` to generate random `id`: `npm install --save uuid`.
+- Add a new file at `store/sagas.mock.js`. All the **real sagas** will be communicating with the server, but until 
+we have that, we are going to use this **mock** that will do it on their own:
 
 ```js
 import { take, put, select } from 'redux-saga/effects';
