@@ -1,29 +1,26 @@
 # Express-react-app
 
-This repo was built following <https://www.github.com/danielstern/express-react-fullstack>.
+This repo was built following **Daniel Stern** PluralSight course **Building a Full Stack App with React and Express**.  
+You can find the original repo at: <https://www.github.com/danielstern/express-react-fullstack>.  
 
 ## Demo Application
 
-React and Redux are used to display components. The Front End itself consists of forms and lists that reflect
-user's data. We use routing to determine which component to display.
-
-The Back End consists of a MongoDB component which stores data persistently in non-relational database. In the production 
-scenario, Express serves a static HTML page which then runs the client application. We use a REST API to communicate with 
-the Back End.
+This app uses React and Redux to display components. Routing determines which component to display. Express allows to communicate with MongoDB through REST API.  
 
 ## Security Considerations
-If security is a concern, you should look at:  
-<https://www.pluralsight.com/authors/troy-hunt>
+
+If security is a concern, you should look at: <https://www.pluralsight.com/authors/troy-hunt>.  
 
 ## Creating a View Layer with React and Redux
 
-Goal: Create a view layer which is fast, usable and easy to maintain.
-Limitation: Until we add back end in next module, data cannot be persisted.
+**Goal**: Create a view layer which is fast, usable and easy to maintain.
+**Limitation**: Until we add back end in the next module, data cannot be persisted.
 
-1. Set up Webpack to compile ES6 and JSX into JavaScript, compile app
-2. Create mock application state using Redux
-3. Create "dashboard" component to display list of tasks
-4. Create "task detail" where users can update tasks
+1. [Setting up Webpack to Compile our application](https://github.com/marcoandre1/express-react-app#setting-up-webpack-to-compile-our-application)
+2. [Install Webpack, Babel and other libraries needed for bundling and transpilation](https://github.com/marcoandre1/express-react-app#install-webpack-babel-and-other-libraries-needed-for-bundling-and-transpilation)
+3. [Create `.babelrc` file to define how `.jsx` and ES6 should be handled](https://github.com/marcoandre1/express-react-app#create-babelrc-file-to-define-how-jsx-and-es6-should-be-handled)
+4. [Create `webpack.config.js` file to describe how our app should be bundled](https://github.com/marcoandre1/express-react-app#create-webpackconfigjs-file-to-describe-how-our-app-should-be-bundled)
+5. [Create stubs for `index.html` and `index.jsx`, which will form the basis of our app](https://github.com/marcoandre1/express-react-app#create-stubs-for-indexhtml-and-indexjsx-which-will-form-the-basis-of-our-app)
 
 ### Setting up Webpack to Compile our application
 
@@ -136,8 +133,6 @@ console.log("Hello world!!!");
 </body>
 ```
 
-### On completion, app should say "hello world" in JS and HTML
-
 - Define another script in `package.json` to launch the application:
 
 ```json
@@ -148,7 +143,9 @@ console.log("Hello world!!!");
 
 - You can now run the application: `npm run dev`.
 
-### Overview of Redux
+> App should say "hello world" in the console.
+
+### Redux Overview
 
 1. Manages underlying data.
 2. Application state can be easily accessed.
@@ -684,7 +681,7 @@ we have that, we are going to use this **mock** that will do it on their own:
 import { take, put, select } from 'redux-saga/effects';
 
 import * as mutations from './mutations';
-import {v1 as uuid} from 'uuid';
+import { v1 as uuid } from 'uuid';
 
 /**
  * Reducers cannot have any randomness (the must be deterministic)
@@ -702,7 +699,7 @@ export function* taskCreationSaga(){
 }
 ```
 
-- Update `store/index.js` to include `saga`:
+- Update `store/index.js` to import `createSagaMiddleware`:
 
 ```js
 import { createStore, applyMiddleware, combineReducers } from 'redux';
@@ -748,14 +745,20 @@ for (let saga in sagas) {
 }
 ```
 
-## Implementing tasks details Route
+### Implementing tasks details Route. Part 1: Displaying data
 
-### Displaying data
+#### Using Mock Files During Development
 
-- Add route which displays the details of a single task
-- Route will implement forms and buttons to allow user to change data
-- Router will be used to indicate which task should be viewed
-- Interactions which mutate the state will be added later
+- Files with `.mock` extension indicate the file does not contain the true business logic.
+- Used to reduce complexity (eg., does not depend on server).
+- Mocks are commonly used in testing framework such as Jest.
+
+#### Demo
+
+1. Add route which displays the details of a single task
+2. Route will implement forms and buttons to allow user to change data
+3. Router will be used to indicate which task should be viewed
+4. Interactions which mutate the state will be added later
 
 - Create a new file `app/components/TaskDetail.jsx`:
 
@@ -904,7 +907,10 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
-### Update data
+### Implementing tasks details Route. Part 2: Mutating data
+
+1. Add methods which _dispatch_ actions when form elements of the task detail are interacted with
+2. Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
 
 #### Add methods which _dispatch_ actions when form elements of the task detail are interacted with
 
@@ -1108,9 +1114,20 @@ for (let saga in sagas) {
 
 #### Front End Summary
 
-- Webpack is useful as it allows us to write code using imports and with JSX
-- Redux is a reliable and convenient way to store and manage our application state
-- React components often contain forms used by the end user
-- Using Ract-Redux, React components can update automatically to reflect data
+1. Webpack is useful as it allows us to write code using imports and with JSX
+2. Redux is a reliable and convenient way to store and manage our application state
+3. React components often contain forms used by the end user
+4. Using Ract-Redux, React components can update automatically to reflect data
 
-# Creating Persistent Data storage with Node, Express, and MongoDB
+## Creating Persistent Data storage with Node, Express, and MongoDB
+
+### Installing MongoDB
+
+#### What is MongoDB?
+
+- Database for storing persistent data
+- Non-relational (collections, not tables, fluid data structure)
+- Convenient JSON-based communication works with Node
+- Alternative to relational databases such as MySQL
+
+#### Install MongoDB
