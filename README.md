@@ -1,11 +1,12 @@
 # Express-react-app
 
-This repo was built following **Daniel Stern** PluralSight course **Building a Full Stack App with React and Express**.  
-You can find the original repo at: <https://www.github.com/danielstern/express-react-fullstack>.  
+**Demo App** : [modokemdev.com/daily-organizer](https://modokemdev.com/daily-organizer/)
 
-## Demo Application
+This repository was built following the **Building a Full Stack App with React and Express** PluralSight course by _Daniel Stern_ ([Here](https://www.github.com/danielstern/express-react-fullstack) is the course repository in GitHub). This app uses React and Redux to display components. Routing determines which component to display. Express allows to communicate with MongoDB through REST API.  
 
-This app uses React and Redux to display components. Routing determines which component to display. Express allows to communicate with MongoDB through REST API.  
+The **express-react-app** can run locally on your machine. Clone the repository and run `npm install` followed by `npm run dev`.
+
+Here are the _notes_ I took from the course:
 
 ## Security Considerations
 
