@@ -17,45 +17,62 @@ If security is a concern, you should look at: <https://www.pluralsight.com/autho
 **Goal**: Create a view layer which is fast, usable and easy to maintain.
 **Limitation**: Until we add back end in the next module, data cannot be persisted.
 
-1. [Setting up Webpack to Compile our application](https://github.com/marcoandre1/express-react-app#setting-up-webpack-to-compile-our-application)
+1. [Setting up Webpack to compile our application](https://github.com/marcoandre1/express-react-app#setting-up-webpack-to-compile-our-application)
 2. [Install Webpack, Babel and other libraries needed for bundling and transpilation](https://github.com/marcoandre1/express-react-app#install-webpack-babel-and-other-libraries-needed-for-bundling-and-transpilation)
 3. [Create `.babelrc` file to define how `.jsx` and ES6 should be handled](https://github.com/marcoandre1/express-react-app#create-babelrc-file-to-define-how-jsx-and-es6-should-be-handled)
 4. [Create `webpack.config.js` file to describe how our app should be bundled](https://github.com/marcoandre1/express-react-app#create-webpackconfigjs-file-to-describe-how-our-app-should-be-bundled)
 5. [Create stubs for `index.html` and `index.jsx`, which will form the basis of our app](https://github.com/marcoandre1/express-react-app#create-stubs-for-indexhtml-and-indexjsx-which-will-form-the-basis-of-our-app)
 
-### Setting up Webpack to Compile our application
+### Setting up Webpack to compile our application
 
-1. `Webpack` is a library that uses `babel` which converts `.jsx` and `ES6` files into `.js` files.
-2. One thing `webpack` does that `babel` can't is it bundles set of files connected by `import` statements into one file.
+Why should we use Webpack? Because browsers can't understand `.jsx` files.
+
+1. `Webpack` is a library that uses `babel` (another library) to convert `.jsx` and `ES6` files into `.js` files.
+2. One thing `Webpack` does that `babel` can't is it bundles set of files connected by _import_ statements into one file. Thus the output in the **gh-pages** branch has only one `.js` file.
 3. `Webpack` has a tool called `webpack-dev-server` which allow us to create an application in a fast and convenient way.
 
 ### Install Webpack, Babel and other libraries needed for bundling and transpilation
 
-- Create a `package.json` file:
+- Generate a `package.json` file:
 
 ```console
+# --yes is used to generate a default package.json file.
 npm init --yes
 ```
 
 - Install `Webpack`:
 
 ```console
+# You can replace webpack with webpack@4.17.2 to avoid errors (latest at the time of the demo)
 npm install --save-dev webpack
 ```
 
-- Add `.gitignore` file and add `node_modules` and `dist` to it.
+> **IMPORTANT**: Add `.gitignore` file, and add `node_modules` and `dist` to it to stop indexing those files. This is important _before_ the first commit.
+
 - Install other dependencies:
 
 ```console
+# Webpack related dependencies
 npm install --save-dev webpack-cli webpack-dev-server
+
+# Babel (@babel/core@7.0.0 at the time of the demo)
 npm install --save-dev @babel/core
+
+# @babel/node compiles in the command line | @babel/preset-env compiles ES6 | @babel/preset-react compiles react | @babel/register needs to be present
 npm install --save-dev @babel/node @babel/preset-env @babel/preset-react @babel/register
+
+# 
 npm install --save-dev babel-loader
 ```
 
-### Create `.babelrc` file to define how `.jsx` and ES6 should be handled
+### Create a `.babelrc` file
 
-- Add a `.babelrc` file which is a json file that babel checks to determine how it should run:
+`.babelrc` is a JSON file that **babel** automatically checks for to define how `.jsx` and ES6 should be handled.
+
+The content of the JSON file should be the following:
+
+- @babel/preset-env is for our ES6 compilation.
+- @babel/preset-react is for our React.
 
 ```json
 {
