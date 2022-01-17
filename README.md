@@ -67,7 +67,7 @@ npm install --save-dev babel-loader
 
 ### Create a `.babelrc` file
 
-`.babelrc` is a JSON file that **babel** automatically checks for to define how `.jsx` and ES6 should be handled.
+The `.babelrc` file, is a JSON file that **babel** automatically checks for to define how `.jsx` and ES6 should be handled.
 
 The content of the JSON file should be the following:
 
@@ -87,9 +87,13 @@ The content of the JSON file should be the following:
 }
 ```
 
-### Create `webpack.config.js` file to describe how our app should be bundled
+### Create `webpack.config.js` file 
 
-- Add a `webpack.config.js` file:
+The `webpack.config.js` file describes how our app should be bundled.
+
+Add a `webpack.config.js` file with the following content:
+
+- `entry: path.resolve(__dirname, 'src','app')` indicates that the main js file is at `./src/app/index.js`.
 
 ```javascript
 // import path from 'path';
