@@ -23,7 +23,7 @@ If security is a concern, you should look at: <https://www.pluralsight.com/autho
 4. [Create `webpack.config.js` file to describe how our app should be bundled](https://github.com/marcoandre1/express-react-app#create-webpackconfigjs-file-to-describe-how-our-app-should-be-bundled)
 5. [Create stubs for `index.html` and `index.jsx`, which will form the basis of our app](https://github.com/marcoandre1/express-react-app#create-stubs-for-indexhtml-and-indexjsx-which-will-form-the-basis-of-our-app)
 
-### Setting up Webpack to compile our application
+## Setting up Webpack to compile our application
 
 Why should we use Webpack? Because browsers can't understand `.jsx` files.
 
@@ -47,7 +47,7 @@ npm init --yes
 npm install --save-dev webpack
 ```
 
-> **IMPORTANT**: Add `.gitignore` file, and add `node_modules` and `dist` to it to stop indexing those files. This is important _before_ the first commit.
+> **IMPORTANT**: Add `.gitignore` file, and add `node_modules` to it to stop indexing those files. This is important _before_ the first commit.
 
 - Install other dependencies:
 
@@ -61,7 +61,7 @@ npm install --save-dev @babel/core
 # @babel/node compiles in the command line | @babel/preset-env compiles ES6 | @babel/preset-react compiles react | @babel/register needs to be present
 npm install --save-dev @babel/node @babel/preset-env @babel/preset-react @babel/register
 
-# 
+# This package allows transpiling JavaScript files using Babel and webpack.
 npm install --save-dev babel-loader
 ```
 
@@ -94,12 +94,16 @@ The `webpack.config.js` file describes how our app should be bundled.
 Add a `webpack.config.js` file with the following content:
 
 - `entry: path.resolve(__dirname, 'src','app')` indicates that the main js file is at `./src/app/index.js`.
+- `path: path.resolve(__dirname,'dist')` indicates that the **output** folder will be at `./dist`.
+- `extensions: ['.js','.jsx']` is an array of the extensions we want Webpack to process.
+- `historyApiFallback: true` is a setting we have to enable if we want to use **React-Router**.
+- `test: /\.jsx?/,` means that all `.js` or `.jsx` files will be compiled.
+
+> **IMPORTANT**: Add `dist` to `.gitignore`.
 
 ```javascript
-// import path from 'path';
-
 const path = require("path");
-// export default {
+
 module.exports = {
     mode: 'development',
     entry: path.resolve(__dirname, 'src','app'),
@@ -123,60 +127,64 @@ module.exports = {
 }
 ```
 
-- Add the entry file at ``src/app/index.jsx`:
+### Create `index.js` file 
+
+- Add the entry file at `./src/app/index.js`:
 
 ```javascript
 console.log("Hello world!!!");
 ```
 
-- Add a script in `package.json`:
+### Create `index.html` file 
 
-```json
-{
-    "start": "webpack"
-}
-```
-
-### Create stubs for `index.html` and `index.jsx`, which will form the basis of our app
-
-- Add `index.html` to the root of the project:
+- You will need to add the file at the root folder:
 
 ```html
 <head>
-
-    <title>
-        An Application
-    </title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+  <title>
+    My Application
+  </title>
 </head>
-<body class="container">
-    <div id="app"></div>
-    <script src="/bundle.js"></script>
+<body>
+  <div id="app"></div>
+  <script src="/bundle.js"></script>
 </body>
 ```
 
-- Define another script in `package.json` to launch the application:
+### Define launch scripts
+
+- Add the following scripts in `package.json`:
 
 ```json
 {
-    "dev": "webpack-dev-server --open"
+  "start": "webpack,
+  "dev": "webpack-dev-server --open"
 }
 ```
 
-- You can now run the application: `npm run dev`.
+### Run the application
 
-> App should say "hello world" in the console.
+```console
+# Run the dev script
+$ npm run dev
+```
 
-### Redux Overview
+## Add Redux to the application
 
 1. Manages underlying data.
 2. Application state can be easily accessed.
 3. Changing application state occurs only via actions.
 4. Redux state is provided to React components via React-Redux, a small connector library.
 
-### Create default application state as JSON file for development
+If you need more info on **Redux**, you can look at: <https://www.pluralsight.com/courses/flux-redux-mastering>.  
 
-- Add `src/server/defaultState.js` file:
+### Create default application state
+
+Add `src/server/defaultState.js` file:
+
+- This is like a _fake_ database.
+- This defines the initial state of the application.
+- Here we have **users**, **groups**, **tasks** and **comments**, and each have their own properties.
 
 ```javascript
 export const defaultState = {
@@ -233,23 +241,31 @@ export const defaultState = {
         isComplete:false,
     }],
     comments:[{
-        owner:"U1",
         id:"C1",
+        owner:"U1",
         task:"T1",
         content:"Great work!"
     }]
 };
 ```
 
-### Create basic Redux store to provide state to application as necessary
+### Create basic Redux store
 
-- Install `Redux`:
+The Redux store is going to provide the state to the application as necessary
+
+#### Instal Redux
 
 ```console
+# redux is at redux@4.0.0 in demo
 npm install --save redux
 ```
 
-- Create the `Redux` store at `src/app/store/index.jsx`:
+#### Create new file to hold Redux store
+
+Create the `Redux` store at `./src/app/store/index.jsx`:
+
+- **reducer** is a special function that always return a new state.
+- This _Redux store_ is very basic and only works with `defaultState`.
 
 ```js
 import { createStore } from 'redux';
@@ -262,20 +278,22 @@ export const store = createStore(
 );
 ```
 
-- Import the store in `app/index.jsx`:
+Import the store in `./app/index.jsx`:
+
+- _console.log_ should load the application full state.
 
 ```javascript
 import { store } from './store'
 
-console.log (store.getState());
+console.log(store.getState());
 ```
 
 > **NOTE:** remove `console.log (store.getState())` after testing but keep the import statement!
 
 - Run the application. You should see an `Object` element in the `console` which contains all the data 
-we specified in `src/server/defaultState.js`.
+we specified in `./src/server/defaultState.js`.
 
-### Add React dashboard component to add as a "home page" for end user
+## Add Dashboard Component
 
 - Install some dependencies:
 
