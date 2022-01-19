@@ -482,19 +482,28 @@ function mapStateToProps(state) {
 export const ConnectedDashboard = connect(mapStateToProps)(Dashboard);
 ```
 
-### Add Routing and Navigation
+## Add Routing and Navigation
 
 1. "Routing" is a term for when the form of the application is affected by the URL bar.
 2. `react-router` determines which React component to display based on URL.
 3. Good use of routing allows a lot of information to be codified in URL.
 
-### Add "Main" component whose contents will change based on URL
+### Add React Router
 
-- Add `react-router-dom`: `npm install react-router-dom --save`.
+**React Router** will add routing capabilities for our app. Add `react-router-dom` which is a subset of React Router that is used in the browser: 
 
-> **NOTE:** in the original version, `history` was also installed but it seems deprecated.
+> **NOTE:** React router is at v6 as of 2022. Many commands have changed. If you have problems refer to the official documentation <https://reactrouter.com/docs/en/v6>. It is still possible to use v5 with the following documentation <https://v5.reactrouter.com/web/guides/quick-start>.
 
-- Update `Main.jsx` to import `BrowserRouter` and `Route`:
+```console
+# react-router-dom@4.3.1 (at the time of the demo)
+$ npm install react-router-dom --save
+```
+
+> **NOTE:** in the original version, `history` was also installed but it seems **deprecated**. The command used was `npm install --save history@4.7.2`. The method imported from the library was **createBrowserHistory** which helped React Router to determine what the object is and what it was in the past.
+
+Update `Main.jsx` to import `BrowserRouter` and `Route`:
+
+- We also add a `Navigation` component. The `Navigation` component imports **Link** from `react-router-dom` to navigate through the app. Refer to the code project for more info.
 
 ```jsx
 import React from 'react';
@@ -504,7 +513,7 @@ import { ConnectedDashboard } from './Dashboard';
 import { BrowserRouter, Route, } from 'react-router-dom';
 import { ConnectedNavigation } from './Navigation';
 
-export const Main = ()=>(
+export const Main = ()=> (
     <BrowserRouter>
         <Provider store={store}>
             <div className="container mt-3">
@@ -521,79 +530,31 @@ export const Main = ()=>(
 )
 ```
 
-### Create new navigation component to go alongside dashboard
+## Add new tasks using Sagas
 
-- Add a new `Navigation` component at `src/app/components/Navigation.jsx`:
-
-```jsx
-/**
- * The navigation component is present on all non-login pages,
- * and contains a link back to the dashboard, and the user's name.
- */
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import React from 'react';
-
-const Navigation = ()=>(
-    <div className="header">
-        <Link to="/dashboard">
-            <h1>
-                My Application
-            </h1>
-        </Link>
-    </div>
-);
-
-export const ConnectedNavigation = connect(state=>state)(Navigation);
-```
-
-- Update `Main.jsx` to import the `Navigation` component :
-
-```jsx
-import React from 'react';
-import { Provider } from 'react-redux';
-import { store } from '../store';
-import { ConnectedDashboard } from "./Dashboard";
-import { Router, Route } from 'react-router-dom';
-import { history } from "../store/history";
-import { ConnectedNavigation } from "./Navigation";
-
-export const Main = ()=>(
-    <Router history={ history }>
-        <Provider store={store}>
-            <div className="container mt-3">
-                <ConnectedNavigation/>
-                {/*<ConnectedDashboard/>*/}
-                <Route
-                    exact
-                    path={"/dashboard"}
-                    render={ () => (<ConnectedDashboard/>)}
-                />
-            </div>
-        </Provider>
-    </Router>
-);
-```
-
-### Add new tasks using Sagas
+We want to allow the user to create new tasks. The user will be able to change the state of the applciation.
 
 1. Reducer must be updated to allow tasks array to be changed.
 2. Tasks need random ID, reducers can't be random, therefore **Saga** or **Thunk** is needed.
-3. Updated state is reflected automatically in React component appearance.
+3. Updated state is reflected automatically in React component appearance because all our components are **connected**.
 
-#### Sagas in Brief
+### Sagas in Brief
+
+You can use **Sagas** or **Thunks** to allow data transformation. You can use whichever you prefer.
 
 1. Sagas run in the background of Redux applications.
-2. Respond to actions by generating "side-effects" (anything outside the app).
-3. One of only a few places where generators functions are found.
+2. Respond to actions by generating _"side-effects"_ (anything outside the app).
+3. Sagas are denoted by a function star syntax (`function*`) which is not found in many other situations. This makes **Sagas** one of only a few places where **generators functions** are found.
 
-#### Generators in Brief
+### Generators in Brief
+
+All **Sagas** are generators. A **generator** is a kind of JavaSrcript fucntion. Standard functions return one value right away. However, generators can return any number of values: 3, 4, 5, 10, any number. Generators can return values later, not just right away. This is the **main difference** between a **generator function** and a **basic function**.
 
 1. Standard JavaScript functions (non-generator) return a single value, instantly.
 2. Generators can return any number of values, not just one.
 3. Generator values can be returned at a later time (asynchronously).
 
-- Example:
+#### Example of Generator function:
 
 ```javascript
 function* myGenerator() {
@@ -608,11 +569,11 @@ function* myGenerator() {
 
 - `function*` indicates special generator function type.
 - generator contains normal javascript code.
-- `while (true)` loops can exist in generator functions.
-- `Yield` keyword returns value to the generator's caller (can return many values).
+- `while (true)` loops can exist in generator functions. A `while(true)` loop, would normally cause a crash but it is acceptable inside a generator function as long as it has the **yield** keyword.
+- `yield` keyword returns value to the generator's caller (can return many values). In this case, the value returned is `meaning`. It then waits until the generator is invoked again.
 - Yields 43, 44, 45, ...
 
-For more info, take a look at: <https://www.pluralsight.com/courses/redux-saga>
+In this app, **Redux Saga** will be invoking these generators for us. For more info, take a look at: <https://www.pluralsight.com/courses/redux-saga>.  
 
 ### Create saga to generate random task ID, create task dispatch action containing details
 
