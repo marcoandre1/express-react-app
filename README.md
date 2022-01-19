@@ -1,31 +1,61 @@
 # Express-react-app
 
-**Demo App** : [modokemdev.com/daily-organizer](https://modokemdev.com/daily-organizer/)
+**Demo App** : [modokemdev.com/daily-organizer](https://modokemdev.com/daily-organizer/)  
+**Goal**: Create a view layer which is fast, usable and easy to maintain.  
+**Limitation**: Until we add back end (MongoDB), data cannot be persisted.  
 
-This repository was built following the **Building a Full Stack App with React and Express** PluralSight course by _Daniel Stern_ ([Here](https://www.github.com/danielstern/express-react-fullstack) is the course repository in GitHub). This app uses React and Redux to display components. Routing determines which component to display. Express allows to communicate with MongoDB through REST API.  
+This repository was built following the **Building a Full Stack App with React and Express** PluralSight course by _Daniel Stern_ ([Here](https://www.github.com/danielstern/express-react-fullstack) is the original course repository in GitHub). This app uses React and Redux to display components. Routing determines which components to display. Express allows to communicate with MongoDB through REST API.  
 
-The **express-react-app** can run locally on your machine. Clone the repository and run `npm install` followed by `npm run dev`.
+The **express-react-app** can run locally on your machine. Clone the repository and run `npm install` followed by `npm run dev`.  
 
-Here are the _notes_ I took from the course:
+This README contains the _notes_ I took from the course:  
+
+- [Express-react-app](#express-react-app)
+  - [Security Considerations](#security-considerations)
+  - [Webpack setup](#webpack-setup)
+    - [Install Webpack, Babel and other libraries needed for bundling and transpilation](#install-webpack-babel-and-other-libraries-needed-for-bundling-and-transpilation)
+    - [Create a `.babelrc` file](#create-a-babelrc-file)
+    - [Create a `webpack.config.js` file](#create-a-webpackconfigjs-file)
+    - [Create an `index.js` file](#create-an-indexjs-file)
+    - [Create an `index.html` file](#create-an-indexhtml-file)
+    - [Define launch scripts](#define-launch-scripts)
+    - [Run the application](#run-the-application)
+  - [Add Redux](#add-redux)
+    - [Create default application state](#create-default-application-state)
+    - [Create basic Redux store](#create-basic-redux-store)
+      - [Instal Redux](#instal-redux)
+      - [Create new file to hold Redux store](#create-new-file-to-hold-redux-store)
+    - [Add Dashboard Component](#add-dashboard-component)
+      - [Connect the Dashboard to the Redux store](#connect-the-dashboard-to-the-redux-store)
+      - [Connect Redux store data to Dashboard](#connect-redux-store-data-to-dashboard)
+    - [Create TaskList component](#create-tasklist-component)
+  - [Add Routing and Navigation](#add-routing-and-navigation)
+    - [Add React Router](#add-react-router)
+  - [Add Sagas](#add-sagas)
+    - [Sagas in Brief](#sagas-in-brief)
+    - [Generators in Brief](#generators-in-brief)
+      - [Example of Generator function](#example-of-generator-function)
+    - [Create saga to generate random task ID, create task dispatch action containing details](#create-saga-to-generate-random-task-id-create-task-dispatch-action-containing-details)
+    - [Create a "mock" saga to interact with the "server" (the server doesn't exist yet)](#create-a-mock-saga-to-interact-with-the-server-the-server-doesnt-exist-yet)
+    - [Implementing tasks details Route. Part 1: Displaying data](#implementing-tasks-details-route-part-1-displaying-data)
+      - [Using Mock Files During Development](#using-mock-files-during-development)
+      - [Demo](#demo)
+    - [Implementing tasks details Route. Part 2: Mutating data](#implementing-tasks-details-route-part-2-mutating-data)
+      - [Add methods which _dispatch_ actions when form elements of the task detail are interacted with](#add-methods-which-dispatch-actions-when-form-elements-of-the-task-detail-are-interacted-with)
+      - [Add clauses to **Redux** reducer which causes state to be changed in response to relevant action](#add-clauses-to-redux-reducer-which-causes-state-to-be-changed-in-response-to-relevant-action)
+      - [Front End Summary](#front-end-summary)
+  - [Creating Persistent Data storage with Node, Express, and MongoDB](#creating-persistent-data-storage-with-node-express-and-mongodb)
+    - [Installing MongoDB](#installing-mongodb)
+      - [What is MongoDB?](#what-is-mongodb)
+      - [Install MongoDB](#install-mongodb)
 
 ## Security Considerations
 
-If security is a concern, you should look at: <https://www.pluralsight.com/authors/troy-hunt>.  
+If security is a concern for your app, you should look at <https://www.pluralsight.com/authors/troy-hunt>, or any other security resources. This application is not intended to be used for logins, store passwords, confidential data, etc.  
 
-## Creating a View Layer with React and Redux
+## Webpack setup
 
-**Goal**: Create a view layer which is fast, usable and easy to maintain.
-**Limitation**: Until we add back end in the next module, data cannot be persisted.
-
-1. [Setting up Webpack to compile our application](https://github.com/marcoandre1/express-react-app#setting-up-webpack-to-compile-our-application)
-2. [Install Webpack, Babel and other libraries needed for bundling and transpilation](https://github.com/marcoandre1/express-react-app#install-webpack-babel-and-other-libraries-needed-for-bundling-and-transpilation)
-3. [Create `.babelrc` file to define how `.jsx` and ES6 should be handled](https://github.com/marcoandre1/express-react-app#create-babelrc-file-to-define-how-jsx-and-es6-should-be-handled)
-4. [Create `webpack.config.js` file to describe how our app should be bundled](https://github.com/marcoandre1/express-react-app#create-webpackconfigjs-file-to-describe-how-our-app-should-be-bundled)
-5. [Create stubs for `index.html` and `index.jsx`, which will form the basis of our app](https://github.com/marcoandre1/express-react-app#create-stubs-for-indexhtml-and-indexjsx-which-will-form-the-basis-of-our-app)
-
-## Setting up Webpack to compile our application
-
-Why should we use Webpack? Because browsers can't understand `.jsx` files.
+Why should we use Webpack?... Because browsers can't understand `.jsx` files!  
 
 1. `Webpack` is a library that uses `babel` (another library) to convert `.jsx` and `ES6` files into `.js` files.
 2. One thing `Webpack` does that `babel` can't is it bundles set of files connected by _import_ statements into one file. Thus the output in the **gh-pages** branch has only one `.js` file.
@@ -65,9 +95,11 @@ npm install --save-dev @babel/node @babel/preset-env @babel/preset-react @babel/
 npm install --save-dev babel-loader
 ```
 
+> **NOTE:** See this [answer](https://stackoverflow.com/questions/44931479/compiling-vs-transpiling/44932758#44932758) in Stack Overflow for a difference between **compiling** and **transpiling**.
+
 ### Create a `.babelrc` file
 
-The `.babelrc` file, is a JSON file that **babel** automatically checks for to define how `.jsx` and ES6 should be handled.
+The `.babelrc` file, is a JSON file that [Babel](https://babeljs.io/docs/en/) automatically checks for to define how `.jsx` and ES6 should be handled.
 
 The content of the JSON file should be the following:
 
@@ -87,19 +119,19 @@ The content of the JSON file should be the following:
 }
 ```
 
-### Create `webpack.config.js` file 
+### Create a `webpack.config.js` file
 
-The `webpack.config.js` file describes how our app should be bundled.
+The `webpack.config.js` file describes how our app should be bundled.  
 
-Add a `webpack.config.js` file with the following content:
+Add a `webpack.config.js` file with the following content:  
 
-- `entry: path.resolve(__dirname, 'src','app')` indicates that the main js file is at `./src/app/index.js`.
-- `path: path.resolve(__dirname,'dist')` indicates that the **output** folder will be at `./dist`.
+- `entry: path.resolve(__dirname, 'src','app')` indicates that the **main js file** is at `./src/app/index.js`.
+- `path: path.resolve(__dirname,'dist')` indicates that the **output folder** will be at `./dist`.
 - `extensions: ['.js','.jsx']` is an array of the extensions we want Webpack to process.
 - `historyApiFallback: true` is a setting we have to enable if we want to use **React-Router**.
 - `test: /\.jsx?/,` means that all `.js` or `.jsx` files will be compiled.
 
-> **IMPORTANT**: Add `dist` to `.gitignore`.
+> **IMPORTANT**: Add `dist` _(the output folder)_ to `.gitignore`.
 
 ```javascript
 const path = require("path");
@@ -127,7 +159,7 @@ module.exports = {
 }
 ```
 
-### Create `index.js` file 
+### Create an `index.js` file
 
 - Add the entry file at `./src/app/index.js`:
 
@@ -135,7 +167,7 @@ module.exports = {
 console.log("Hello world!!!");
 ```
 
-### Create `index.html` file 
+### Create an `index.html` file
 
 - You will need to add the file at the root folder:
 
@@ -157,7 +189,7 @@ console.log("Hello world!!!");
 
 ```json
 {
-  "start": "webpack,
+  "start": "webpack",
   "dev": "webpack-dev-server --open"
 }
 ```
@@ -169,7 +201,7 @@ console.log("Hello world!!!");
 $ npm run dev
 ```
 
-## Add Redux to the application
+## Add Redux
 
 1. Manages underlying data.
 2. Application state can be easily accessed.
@@ -193,7 +225,7 @@ export const defaultState = {
         name:"Dev"
     },{
         id:"U2",
-        name:"C. Eeyo"
+        name:"C. Eyo"
     }],
     groups:[{
         name:"To Do",
@@ -251,18 +283,18 @@ export const defaultState = {
 
 ### Create basic Redux store
 
-The Redux store is going to provide the state to the application as necessary
+The Redux store is going to provide the state to the application as necessary.  
 
 #### Instal Redux
 
 ```console
-# redux is at redux@4.0.0 in demo
+# redux is at redux@4.0.0 in the original demo
 npm install --save redux
 ```
 
 #### Create new file to hold Redux store
 
-Create the `Redux` store at `./src/app/store/index.jsx`:
+Create the `Redux` store at `./src/app/store/index.jsx`:  
 
 - **reducer** is a special function that always return a new state.
 - This _Redux store_ is very basic and only works with `defaultState`.
@@ -290,12 +322,11 @@ console.log(store.getState());
 
 > **NOTE:** remove `console.log (store.getState())` after testing but keep the import statement!
 
-- Run the application. You should see an `Object` element in the `console` which contains all the data 
-we specified in `./src/server/defaultState.js`.
+- Run the application. You should see an `Object` element in the `console` which contains all the data we specified in `./src/server/defaultState.js`.
 
-## Add Dashboard Component
+### Add Dashboard Component
 
-Install the followning dependencies:
+Install the following dependencies:  
 
 ```console
 # react@16.4.2 (version in demo) | react-dom turns jsx into html | react-redux@5.0.7 (version in demo)
@@ -305,7 +336,7 @@ npm install --save react react-dom react-redux
 Add the `Dashboard` component at `src/app/components/Dashboard.jsx`:
 
 - `.jsx` indicates that it is a React file.
-- You alwways need to import React first: `import React from 'react';`.
+- You always need to import React first: `import React from 'react';`.
 - Here we use an arrow function to render the `Dashboard` component.
 
 ```jsx
@@ -318,7 +349,7 @@ export const Dashboard = ({groups}) => (
 );
 ```
 
-We need to specify that we want to render the `Dashboard` component in the `app/index.jsx` file:
+We need to specify that we want to render the `Dashboard` component in the `app/index.jsx` file:  
 
 > **NOTE:** the file was previously named `index.js` but you will need to rename it `index.jsx` and restart you dev server (if it was running).
 
@@ -335,11 +366,11 @@ ReactDOM.render(
 );
 ```
 
-### Connect the Dashboard to the Redux store
+#### Connect the Dashboard to the Redux store
 
-Use **React Redux** to connect the `Dashboard` component to the _Redux store_. The easiest way is to create a **parent component** which we are going to call `Main.jsx` (located at `src/app/components/Main.jsx`):
+Use **React Redux** to connect the `Dashboard` component to the _Redux store_. The easiest way is to create a **parent component** which we are going to call `Main.jsx` (located at `src/app/components/Main.jsx`):  
 
-- The **Provider** is an element which takes a store as a property and any connected component inside this **Provider** will have acces to the store.
+- The **Provider** is an element which takes a store as a property and any connected component inside this **Provider** will have access to the store.
 
 ```jsx
 import React from 'react';
@@ -355,7 +386,7 @@ export const Main = () => (
 );
 ```
 
-Update `index.jsx` to load `Main.jsx` component (which is our **main** component now):
+Update `index.jsx` to load `Main.jsx` component (which is our **main** component now):  
 
 ```jsx
 import { store } from './store'
@@ -372,9 +403,9 @@ ReactDOM.render(
 
 #### Connect Redux store data to Dashboard
 
-Add `function mapStateToProps(state)` to `Dashboard` component and call `connect` from Redux.
+Add `function mapStateToProps(state)` to `Dashboard` component and call `connect` from Redux.  
 
-> **NOTE:** the map function simply maps every group in the json file.
+> **NOTE:** the [map function](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Map) is a basic JavaScript function that simply maps every group in the json file.
 
 ```jsx
 import React from 'react';
@@ -424,7 +455,7 @@ export const Main = ()=>(
 
 ### Create TaskList component
 
-The `TaksList` component shows the tasks in each group. Add the `TaskList` component at `src/app/components/TaskList.jsx`:
+The `TaskList` component shows the tasks in each group. Add the `TaskList` component at `src/app/components/TaskList.jsx`:  
 
 - The second argument of _mapStateToProps_ are the component properties: `const mapStateToProps = (state, ownProps) => {`. They are called **ownProps**.
 
@@ -490,7 +521,7 @@ export const ConnectedDashboard = connect(mapStateToProps)(Dashboard);
 
 ### Add React Router
 
-**React Router** will add routing capabilities for our app. Add `react-router-dom` which is a subset of React Router that is used in the browser: 
+**React Router** will add routing capabilities for our app. Add `react-router-dom` which is a subset of React Router that is used in the browser:  
 
 > **NOTE:** React router is at v6 as of 2022. Many commands have changed. If you have problems refer to the official documentation <https://reactrouter.com/docs/en/v6>. It is still possible to use v5 with the following documentation <https://v5.reactrouter.com/web/guides/quick-start>.
 
@@ -501,7 +532,7 @@ $ npm install react-router-dom --save
 
 > **NOTE:** in the original version, `history` was also installed but it seems **deprecated**. The command used was `npm install --save history@4.7.2`. The method imported from the library was **createBrowserHistory** which helped React Router to determine what the object is and what it was in the past.
 
-Update `Main.jsx` to import `BrowserRouter` and `Route`:
+Update `Main.jsx` to import `BrowserRouter` and `Route`:  
 
 - We also add a `Navigation` component. The `Navigation` component imports **Link** from `react-router-dom` to navigate through the app. Refer to the code project for more info.
 
@@ -530,13 +561,13 @@ export const Main = ()=> (
 )
 ```
 
-## Add new tasks using Sagas
+## Add Sagas
 
-We want to allow the user to create new tasks. The user will be able to change the state of the applciation.
+We want to allow the user to create new tasks. This means that we want to allow the user to change the state of the application. This is possible with **Sagas**.  
 
-1. Reducer must be updated to allow tasks array to be changed.
+1. `reducer` function must be updated to allow tasks array to be changed. If you are following the tutorial from the beginning, you will notice that we are just passing the `defaultState` of the application to the `reducer` function: `function reducer (state = defaultState, action) {return state;}`.
 2. Tasks need random ID, reducers can't be random, therefore **Saga** or **Thunk** is needed.
-3. Updated state is reflected automatically in React component appearance because all our components are **connected**.
+3. Updated state is reflected automatically in React components because all of our components are **connected**.
 
 ### Sagas in Brief
 
@@ -544,17 +575,19 @@ You can use **Sagas** or **Thunks** to allow data transformation. You can use wh
 
 1. Sagas run in the background of Redux applications.
 2. Respond to actions by generating _"side-effects"_ (anything outside the app).
-3. Sagas are denoted by a function star syntax (`function*`) which is not found in many other situations. This makes **Sagas** one of only a few places where **generators functions** are found.
+3. Sagas are denoted by a function star syntax (`function*`) which is not found in many other situations. This makes **Sagas** one of the only few places where **generators functions** are found.
 
 ### Generators in Brief
 
-All **Sagas** are generators. A **generator** is a kind of JavaSrcript fucntion. Standard functions return one value right away. However, generators can return any number of values: 3, 4, 5, 10, any number. Generators can return values later, not just right away. This is the **main difference** between a **generator function** and a **basic function**.
+All **Sagas** are generators. A **generator** is a kind of JavaScript function. Standard functions return one value right away. However, generators can return any number of values: 3, 4, 5, 10, any number. Generators can return values later, not just right away. This is the **main difference** between a **generator functions** and a **basic functions**.  
+
+> From [developer.mozilla.org](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/function*), the `function*` declaration (`function` keyword followed by an asterisk) defines a _generator function_, which returns a [Generator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Generator) object.
 
 1. Standard JavaScript functions (non-generator) return a single value, instantly.
 2. Generators can return any number of values, not just one.
 3. Generator values can be returned at a later time (asynchronously).
 
-#### Example of Generator function:
+#### Example of Generator function
 
 ```javascript
 function* myGenerator() {
@@ -573,7 +606,7 @@ function* myGenerator() {
 - `yield` keyword returns value to the generator's caller (can return many values). In this case, the value returned is `meaning`. It then waits until the generator is invoked again.
 - Yields 43, 44, 45, ...
 
-In this app, **Redux Saga** will be invoking these generators for us. For more info, take a look at: <https://www.pluralsight.com/courses/redux-saga>.  
+In this app, **Redux Saga** will be invoking these generators for us. For more info, take a look at <https://www.pluralsight.com/courses/redux-saga>, or the [official documentation](https://redux-saga.js.org/).  
 
 ### Create saga to generate random task ID, create task dispatch action containing details
 
@@ -700,12 +733,10 @@ export const store = createStore(
 
 ### Create a "mock" saga to interact with the "server" (the server doesn't exist yet)
 
-- Usually actions change the state of the application. However, for actions that require any kind of randomness like 
-the task creation, we need some kind of intermediary, in other words a **saga**.
+- Usually actions change the state of the application. However, for actions that require any kind of randomness like the task creation, we need some kind of intermediary, in other words a **saga**.
 - Add a saga to deal with this unusual request.
 - Install `uuid` to generate random `id`: `npm install --save uuid`.
-- Add a new file at `store/sagas.mock.js`. All the **real sagas** will be communicating with the server, but until 
-we have that, we are going to use this **mock** that will do it on their own:
+- Add a new file at `store/sagas.mock.js`. All the **real sagas** will be communicating with the server, but until we have that, we are going to use this **mock** that will do it on their own:
 
 ```js
 import { take, put, select } from 'redux-saga/effects';
@@ -1147,7 +1178,7 @@ for (let saga in sagas) {
 1. Webpack is useful as it allows us to write code using imports and with JSX
 2. Redux is a reliable and convenient way to store and manage our application state
 3. React components often contain forms used by the end user
-4. Using Ract-Redux, React components can update automatically to reflect data
+4. Using React-Redux, React components can update automatically to reflect data
 
 ## Creating Persistent Data storage with Node, Express, and MongoDB
 
