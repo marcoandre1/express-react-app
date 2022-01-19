@@ -295,30 +295,32 @@ we specified in `./src/server/defaultState.js`.
 
 ## Add Dashboard Component
 
-- Install some dependencies:
+Install the followning dependencies:
 
 ```console
+# react@16.4.2 (version in demo) | react-dom turns jsx into html | react-redux@5.0.7 (version in demo)
 npm install --save react react-dom react-redux
 ```
 
-- Add the `Dashboard` component at `src/app/components/Dashboard.jsx`:
+Add the `Dashboard` component at `src/app/components/Dashboard.jsx`:
+
+- `.jsx` indicates that it is a React file.
+- You alwways need to import React first: `import React from 'react';`.
+- Here we use an arrow function to render the `Dashboard` component.
 
 ```jsx
-/**
- * The dashboard is a simple React component that contains several lists of tasks,
- * one for each group that belongs to the user.
- */
-
 import React from 'react';
 
-export const Dashboard = ({groups})=>(
+export const Dashboard = ({groups}) => (
     <div>
         <h2>Dashboard</h2>
     </div>
 );
 ```
 
-- Update `app/index.jsx`:
+We need to specify that we want to render the `Dashboard` component in the `app/index.jsx` file:
+
+- 
 
 ```jsx
 import { store } from './store'
