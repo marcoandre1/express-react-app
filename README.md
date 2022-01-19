@@ -320,7 +320,7 @@ export const Dashboard = ({groups}) => (
 
 We need to specify that we want to render the `Dashboard` component in the `app/index.jsx` file:
 
-- 
+> **NOTE:** the file was previously named `index.js` but you will need to rename it `index.jsx` and restart you dev server (if it was running).
 
 ```jsx
 import { store } from './store'
@@ -335,27 +335,27 @@ ReactDOM.render(
 );
 ```
 
-- Run the application: `npm run dev`.
-
 ### Connect the Dashboard to the Redux store
 
-- Add the `Main` component at `src/app/components/Main.jsx`:
+Use **React Redux** to connect the `Dashboard` component to the _Redux store_. The easiest way is to create a **parent component** which we are going to call `Main.jsx` (located at `src/app/components/Main.jsx`):
+
+- The **Provider** is an element which takes a store as a property and any connected component inside this **Provider** will have acces to the store.
 
 ```jsx
 import React from 'react';
 import { Provider } from 'react-redux';
 import { store } from '../store';
 
-export const Main = ()=>(
+export const Main = () => (
     <Provider store={store}>
-        <div className="container mt-3">
+        <div>
             Dashboard goes here.
         </div>
     </Provider>
 );
 ```
 
-- Update `index.jsx` to load `Main` component:
+Update `index.jsx` to load `Main.jsx` component (which is our **main** component now):
 
 ```jsx
 import { store } from './store'
@@ -370,9 +370,41 @@ ReactDOM.render(
 );
 ```
 
-- Run the application: `npm run dev`.
-- Add `function mapStateToProps(state)` to `Dashboard` component and call `connect` from Redux.
-- Update `Main.jsx` and import the `ConnectedDashboard`:
+#### Connect Redux store data to Dashboard
+
+Add `function mapStateToProps(state)` to `Dashboard` component and call `connect` from Redux.
+
+> **NOTE:** the map function simply maps every group in the json file.
+
+```jsx
+import React from 'react';
+import { connect } from 'react-redux';
+
+export const Dashboard = ({groups}) => (
+    <div>
+        <h2>Dashboard</h2>
+        {
+          groups.map(
+            group => (
+              <div>
+                {group.name}
+              </div>
+            )
+          )
+        }
+    </div>
+);
+
+function mapStateToProps(state) {
+  return {
+    groups:state.groups
+  }
+}
+
+export const ConnectedDashboard = connect(mapStateToProps)(Dashboard);
+```
+
+Update `Main.jsx` and import the `ConnectedDashboard`:
 
 ```jsx
 import React from 'react';
@@ -382,7 +414,7 @@ import { ConnectedDashboard } from "./Dashboard";
 
 export const Main = ()=>(
     <Provider store={store}>
-        <div className="container mt-3">
+        <div>
             {/*Dashboard goes here.*/}
             <ConnectedDashboard/>
         </div>
@@ -390,18 +422,18 @@ export const Main = ()=>(
 );
 ```
 
-- Run the application: `npm run dev`.
-
 ### Create TaskList component
 
-- Add the `TaskList` component at `src/app/components/TaskList.jsx`:
+The `TaksList` component shows the tasks in each group. Add the `TaskList` component at `src/app/components/TaskList.jsx`:
+
+- The second argument of _mapStateToProps_ are the component properties: `const mapStateToProps = (state, ownProps) => {`. They are called **ownProps**.
 
 ```jsx
 import React from 'react';
 import { connect } from 'react-redux';
 
-export const TaskList = ({tasks, name})=>(
-    <div className="card p-2 m-2">
+export const TaskList = ({tasks, name}) => (
+    <div>
         <h3>
             {name}
         </h3>
@@ -413,7 +445,7 @@ export const TaskList = ({tasks, name})=>(
     </div>
 );
 
-const mapStateToProps = (state, ownProps)=>{
+const mapStateToProps = (state, ownProps) => {
     let groupID = ownProps.id;
     return {
         name: ownProps.name,
@@ -428,11 +460,6 @@ export const ConnectedTaskList = connect(mapStateToProps)(TaskList);
 - Update the `Dashboard` component to include the `TaskList` component:
 
 ```jsx
-/**
- * The dashboard is a simple React component that contains several lists of tasks,
- * one for each group that belongs to the user.
- */
-
 import React from 'react';
 import { connect } from 'react-redux';
 import { ConnectedTaskList } from './TaskList';
