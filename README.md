@@ -608,16 +608,21 @@ function* myGenerator() {
 
 In this app, **Redux Saga** will be invoking these generators for us. For more info, take a look at <https://www.pluralsight.com/courses/redux-saga>, or the [official documentation](https://redux-saga.js.org/).  
 
-### Create saga to generate random task ID, create task dispatch action containing details
+### Add a button to create a _new task_
 
-- Update `TaskList.jsx` to include a button to create a _new task_ and add the `createNewTask` method:
+Update `TaskList.jsx`:
+
+- add a button to create a _new task_: `<button onClick={() => createNewTask(id)}>Add New</button>`.
+- add `mapDispatchToProps` to pass the new method `createNewTask` to the component. We don't pass it through the exisiting `mapStateToProps` method.
+- add `mapDispatchToProps` to `connect` method which should provide access to `createNewTask` to the component.
+- add `createNewTask` as component property: `export const TaskList = ({tasks, name, id, createNewTask}) => (`.
 
 ```jsx
 import React from 'react';
 import { connect } from 'react-redux';
 
-export const TaskList = ({tasks, name, id, createNewTask})=>(
-    <div className="card p-2 m-2">
+export const TaskList = ({tasks, name, id, createNewTask}) => (
+    <div>
         <h3>
             {name}
         </h3>
@@ -626,7 +631,7 @@ export const TaskList = ({tasks, name, id, createNewTask})=>(
                 <div key={task.id}>{task.name}</div>
             ))}
         </div>
-        <button onClick={ () => createNewTask(id) }>Add New</button>
+        <button onClick={() => createNewTask(id)}>Add New</button>
     </div>
 );
 
@@ -650,19 +655,26 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
-- You should be able to see the `Add New` button and if you enter the console, it creates a task for the right group!
-- Create a new file at `app/store/mutations.js`. This file is a template for all the changes to the application state:
+You should be able to see the `Add New` button and if you enter the console, each time you click the button, it logs _"Creating new task..."_!
+
+### Add `requestTaskCreation` and `createTask` mutations
+
+Create a new file at `app/store/mutations.js`. This file is a template for all the changes to the application state:
+
+- `REQUEST_TASK_CREATION` and `CREATE_TASK` are mutations.
+- `requestTaskCreation` and `createTask` are methods that automatically create objects to **do** these mutations.
+- `createTask` will be dispatched by the **saga** once it's finished creating this object complete with its own random ID.
 
 ```jsx
 export const REQUEST_TASK_CREATION = `REQUEST_TASK_CREATION`;
 export const CREATE_TASK = `CREATE_TASK`;
 
-export const requestTaskCreation = (groupID)=>({
+export const requestTaskCreation = (groupID) => ({
     type:REQUEST_TASK_CREATION,
     groupID
 });
 
-export const createTask = (taskID, groupID, ownerID)=>({
+export const createTask = (taskID, groupID, ownerID) => ({
     type:CREATE_TASK,
     taskID,
     groupID,
@@ -670,7 +682,10 @@ export const createTask = (taskID, groupID, ownerID)=>({
 });
 ```
 
-- Update `TaskList` to import `requestTaskCreation`:
+Update `TaskList` component:
+
+- import `requestTaskCreation` from `mutation.js`.
+- add a call to `dispacth` function in `createNewTask` method which will _dispatch_ the `requestTaskCreation` mutation with the id provided.
 
 ```jsx
 import React from 'react';
@@ -712,14 +727,29 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
-- To help us understand what is going on, we want to add _logging_ **(console logging, not user login!)**.
-- Add new dependencies: `npm install --save redux-logger redux-saga`.
-- Update the `store/index.js` file to import `createLogger` and `applyMiddleware`:
+### Add logging to store actions
+
+To help us understand what is going on, we want to add _logging_ **(console logging, not user login!)**.
+
+#### Add logger
+
+```console
+# redux-logger@3.0.6 (at the original time of the demo)
+$ npm install --save redux-logger
+```
+
+#### Add logger to `index.js`
+
+Update the `store/index.js` file:
+
+- import `createLogger` from `redux-loger`.
+- add a secong import from `redux` called `applyMiddleware`.
+- add a second argument to `createStore` for `redux-loger` to work: `applyMiddleware(createLogger())`.
 
 ```js
 import { createStore, applyMiddleware } from 'redux';
 import { defaultState } from '../../server/defaultState';
-import { createLogger } from 'redux-logger/src';
+import { createLogger } from 'redux-logger';
 
 export const store = createStore(
     function reducer (state = defaultState, action) {
@@ -729,36 +759,54 @@ export const store = createStore(
 );
 ```
 
-- Now, whenever we dispatch an action, we will see it in the console!
+Now, whenever we dispatch an action, we will see it in the console! _(Example: `action REQUEST_TASK_CREATION`)_
 
-### Create a "mock" saga to interact with the "server" (the server doesn't exist yet)
+### Create a saga
 
-- Usually actions change the state of the application. However, for actions that require any kind of randomness like the task creation, we need some kind of intermediary, in other words a **saga**.
-- Add a saga to deal with this unusual request.
-- Install `uuid` to generate random `id`: `npm install --save uuid`.
-- Add a new file at `store/sagas.mock.js`. All the **real sagas** will be communicating with the server, but until we have that, we are going to use this **mock** that will do it on their own:
+Usually, actions change the state of the application. However, for actions that require some kind of randomness, like `TASK_CREATION`, we need an intermediary like a **saga**. A **saga** will deal with this unusual request.
+
+#### Add redux-saga
+
+```console
+# redux-saga@0.16.2 (at the original time of the demo)
+$ npm install --save redux-logger redux-saga
+```
+
+#### Add uuid library
+
+We need a library to generate random strings.
+
+```console
+# uuid will generate random id
+$ npm install --save uuid
+```
+
+#### Create a "mock" saga to interact with the "server" (the server doesn't exist yet)
+
+Add a new **saga** at `store/sagas.mock.js`. All the **real sagas** will be communicating with the server, but until we have that, we are going to use these **mocks** that will do it on their own:
+
+- You will need all the `import` statements.
+- `taskCreationSaga` is a **saga** to create a _new task_.
+- `take` function will stop until the specified action is dispatched and `groupID` is a property we get from this action. We actually logged it just after.
+- 
 
 ```js
 import { take, put, select } from 'redux-saga/effects';
-
 import * as mutations from './mutations';
 import { v1 as uuid } from 'uuid';
 
-/**
- * Reducers cannot have any randomness (the must be deterministic)
- * Since the action of creating a task involves generating a random ID, it is not pure.
- * When the response to an action is not deterministic in a Redux application, both Sagas and Thunks are appropriate.
- */
-export function* taskCreationSaga(){
-    while (true){
+export function* taskCreationSaga() {
+    while (true) {
         const {groupID} = yield take(mutations.REQUEST_TASK_CREATION);
+        console.log("Got group ID", groupID);
         const ownerID = 'U1';
         const taskID = uuid();
         yield put(mutations.createTask(taskID, groupID, ownerID));
-        console.log("Got group ID", groupID);
     }
 }
 ```
+
+### Create a saga to generate random task ID, create task dispatch action containing details
 
 - Update `store/index.js` to import `createSagaMiddleware`:
 
