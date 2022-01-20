@@ -749,7 +749,7 @@ Update the `store/index.js` file:
 ```js
 import { createStore, applyMiddleware } from 'redux';
 import { defaultState } from '../../server/defaultState';
-import { createLogger } from 'redux-logger';
+import { createLogger } from 'redux-logger/src';
 
 export const store = createStore(
     function reducer (state = defaultState, action) {
@@ -787,8 +787,10 @@ Add a new **saga** at `store/sagas.mock.js`. All the **real sagas** will be comm
 
 - You will need all the `import` statements.
 - `taskCreationSaga` is a **saga** to create a _new task_.
-- `take` function will stop until the specified action is dispatched and `groupID` is a property we get from this action. We actually logged it just after.
-- 
+- `take` function will stop until the specified action is dispatched. In this context, `groupID` is a property we get from the action. This is why we can log it just after.
+- The `ownerID` is hardcoded to `'U1'` because no loggin has been implemented.
+- The `taskID` needs to be a random string so we call our random generator `uuid()`.
+- `put` function will send the action to the store. The mutation we want to send is the `createTask` mutation.
 
 ```js
 import { take, put, select } from 'redux-saga/effects';
@@ -806,9 +808,14 @@ export function* taskCreationSaga() {
 }
 ```
 
-### Create a saga to generate random task ID, create task dispatch action containing details
+To run the **saga**, update `store/index.js`:
 
-- Update `store/index.js` to import `createSagaMiddleware`:
+- add import `createSagaMiddleware` from `redux-saga` and assigned to `const sagaMiddleware`.
+- import all sagas from `sagas.mock.js`.
+- import all mutations from `mutations.js`.
+- import `combineReduces` from `redux`. It creates a reducer that deals with each collection in our state differently.
+- replace `reducer` function with `combineReducers` function.
+- `combineReducers` takes objects as argument. The name of each property of the object corresponds to the collection.
 
 ```js
 import { createStore, applyMiddleware, combineReducers } from 'redux';
@@ -825,7 +832,6 @@ export const store = createStore(
         tasks(tasks = defaultState.tasks, action) {
             switch (action.type) {
                 case mutations.CREATE_TASK:
-                    // console.log(action);
                     return [...tasks, {
                         id:action.taskID,
                         name:"New Task",
@@ -854,13 +860,17 @@ for (let saga in sagas) {
 }
 ```
 
+## Add a Task Detail page
+
+Allows the user to modify the tasks.
+
 ### Implementing tasks details Route. Part 1: Displaying data
 
 #### Using Mock Files During Development
 
 - Files with `.mock` extension indicate the file does not contain the true business logic.
 - Used to reduce complexity (eg., does not depend on server).
-- Mocks are commonly used in testing framework such as Jest.
+- Mocks are commonly used in testing framework such as **Jest**.
 
 #### Demo
 
@@ -869,13 +879,13 @@ for (let saga in sagas) {
 3. Router will be used to indicate which task should be viewed
 4. Interactions which mutate the state will be added later
 
-- Create a new file `app/components/TaskDetail.jsx`:
+Create a new file `app/components/TaskDetail.jsx`:
+
+- Import `React`, `connect` and `Link`.
+- Add all the component UI.
+- Add `mapStateToProps` function.
 
 ```jsx
-/**
- * The task detail component route is a more sophisticated form that has many different fields.
- * The component automatically calls the REST API [via a mutation] to update the server on every change.
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -886,19 +896,19 @@ const TaskDetail = ({
                         task,
                         isComplete,
                         groups
-                    })=>{
+                    }) => {
     return (
-        <div className="card p-3 col-6">
+        <div>
             <div>
                 <input type="text" value={task.name} className="form-control form-control-lg"/>
             </div>
 
             <form className="form-inline">
-                <span className="mr-4">
+                <span>
                     Change Group
                 </span>
                 <select className="form-control">
-                    {groups.map(group=>(
+                    {groups.map(group => (
                         <option key={group.id} value={group.id}>
                             {group.name}
                         </option>
@@ -913,7 +923,7 @@ const TaskDetail = ({
 
             <div>
                 <Link to="/dashboard">
-                    <button className="btn btn-primary mt-2">
+                    <button>
                         Done
                     </button>
                 </Link>
@@ -922,9 +932,9 @@ const TaskDetail = ({
     )
 }
 
-function mapStateToProps(state,ownProps){
+function mapStateToProps(state,ownProps) {
     let id = ownProps.match.params.id;
-    let task = state.tasks.find(task=>task.id === id);
+    let task = state.tasks.find(task => task.id === id);
     let groups = state.groups;
 
     return {
@@ -938,7 +948,11 @@ function mapStateToProps(state,ownProps){
 export const ConnectedTaskDetail = connect(mapStateToProps)(TaskDetail);
 ```
 
-- Update `components/Main.jsx` to include a route for `TaskDetail`:
+Update `components/Main.jsx`:
+
+- Add a route to the new `TaskDetail` component.
+- Import `TaskDetail` component.
+- The `match` argument is the pade id.
 
 ```jsx
 import React from 'react';
@@ -958,12 +972,12 @@ export const Main = ()=>(
                 <Route
                     exact
                     path="/dashboard"
-                    render={ () => (<ConnectedDashboard/>)}
+                    render={() => (<ConnectedDashboard/>)}
                 />
                 <Route
                     exact
                     path="/task/:id"
-                    render={ ({ match }) => (<ConnectedTaskDetail match={ match }/>)}
+                    render={({ match }) => (<ConnectedTaskDetail match={match}/>)}
                 />
             </div>
         </Provider>
@@ -971,7 +985,10 @@ export const Main = ()=>(
 )
 ```
 
-- Update `components/TaskList.jsx` to add links to each task:
+Update `components/TaskList.jsx`:
+
+- Import `Link` from `react-router-dom`.
+- For every task that is mapped, we render a **link** to its task page: `` Link to={`/task/${task.id}`} ``.
 
 ```jsx
 import React from 'react';
@@ -980,18 +997,18 @@ import { requestTaskCreation} from '../store/mutations';
 import { Link} from 'react-router-dom';
 
 export const TaskList = ({tasks, name, id, createNewTask})=>(
-    <div className="card p-2 m-2">
+    <div>
         <h3>
             {name}
         </h3>
         <div>
-            {tasks.map(task=>(
+            {tasks.map(task => (
                 <Link to={`/task/${task.id}`} key={task.id}>
                     <div>{task.name}</div>
                 </Link>
             ))}
         </div>
-        <button onClick={ () => createNewTask(id) }>Add New</button>
+        <button onClick={() => createNewTask(id)}>Add New</button>
     </div>
 );
 
@@ -1023,13 +1040,18 @@ export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(Ta
 
 #### Add methods which _dispatch_ actions when form elements of the task detail are interacted with
 
-- Update `components/TaskDetail.jsx`:
+Update `components/TaskDetail.jsx`:
+
+- Modify the `button` output text (Reopen/Complete).
+- Add `mapDispatchToProps` function.
+- import all `mutations` from `mutations.js`.
+- After adding the **mutations** to `mapDispatchToProps` function, pass the new functions as arguments to `TaskDetail` component.
+- Pass `mapDispatchToProps` as a second argument to `connect` function.
+- Add `setTaskGroup` and `setTaskName` to `mapDispatchToProps` and pass them as arguments to `TaskDetail` component.
+- Add `onChange={setTaskName}` to `input` button.
+- Add `onChange={setTaskGroup}` to `select` dropdown.
 
 ```jsx
-/**
- * The task detail component route is a more sophisticated form that has many different fields.
- * The component automatically calls the REST API [via a mutation] to update the server on every change.
- */
 import React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -1047,17 +1069,17 @@ const TaskDetail = ({
                         setTaskName
                     })=>{
     return (
-        <div className="card p-3 col-6">
+        <div>
             <div>
                 <input type="text" value={task.name} onChange={setTaskName} className="form-control form-control-lg"/>
             </div>
 
-            <button  className="btn btn-primary ml-2" onClick={() => setTaskCompletion(id,!isComplete)}>
+            <button onClick={() => setTaskCompletion(id,!isComplete)}>
                 {isComplete ? `Reopen` : `Complete`} This Task
             </button>
 
             <form className="form-inline">
-                <span className="mr-4">
+                <span>
                     Change Group
                 </span>
                 <select onChange={setTaskGroup} value={task.group} className="form-control">
@@ -1085,7 +1107,7 @@ const TaskDetail = ({
     )
 }
 
-function mapStateToProps(state,ownProps){
+function mapStateToProps(state,ownProps) {
     let id = ownProps.match.params.id;
     let task = state.tasks.find(task=>task.id === id);
     let groups = state.groups;
@@ -1098,7 +1120,7 @@ function mapStateToProps(state,ownProps){
     }
 }
 
-function mapDispatchToProps(dispatch, ownProps){
+function mapDispatchToProps(dispatch, ownProps) {
     let id = ownProps.match.params.id;
     return {
         setTaskCompletion(id,isComplete){
@@ -1116,7 +1138,10 @@ function mapDispatchToProps(dispatch, ownProps){
 export const ConnectedTaskDetail = connect(mapStateToProps, mapDispatchToProps)(TaskDetail);
 ```
 
-- Update `store/mutations.js`:
+Update `store/mutations.js`:
+
+- Add constants: `SET_TASK_COMPLETE`, `SET_TASK_GROUP`, `SET_TASK_NAME`.
+- Add action creators: `setTaskCompletion`, `setTaskGroup`, `setTaskName`.
 
 ```js
 export const REQUEST_TASK_CREATION = `REQUEST_TASK_CREATION`;
@@ -1125,31 +1150,31 @@ export const SET_TASK_COMPLETE = `SET_TASK_COMPLETE`;
 export const SET_TASK_GROUP = `SET_TASK_GROUP`;
 export const SET_TASK_NAME = `SET_TASK_NAME`;
 
-export const requestTaskCreation = (groupID)=>({
+export const requestTaskCreation = (groupID) => ({
     type:REQUEST_TASK_CREATION,
     groupID
 });
 
-export const createTask = (taskID, groupID, ownerID)=>({
+export const createTask = (taskID, groupID, ownerID) => ({
     type:CREATE_TASK,
     taskID,
     groupID,
     ownerID
 });
 
-export const setTaskCompletion = (id, isComplete)=>({
+export const setTaskCompletion = (id, isComplete) => ({
     type:SET_TASK_COMPLETE,
     taskID: id,
     isComplete
 });
 
-export const setTaskGroup = (id, groupID)=>({
+export const setTaskGroup = (id, groupID) => ({
     type:SET_TASK_GROUP,
     taskID: id,
     groupID
 });
 
-export const setTaskName = (id, name)=>({
+export const setTaskName = (id, name) => ({
     type:SET_TASK_NAME,
     taskID: id,
     name
@@ -1158,7 +1183,10 @@ export const setTaskName = (id, name)=>({
 
 #### Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
 
-- Update `store/index.js` _(reducer)_:
+Update `store/index.js` _(reducer)_:
+
+- Add new case `mutations.SET_TASK_COMPLETE`.
+- Add new cases for `mutations.SET_TASK_NAME` and `mutations.SET_TASK_GROUP`.
 
 ```js
 import { createStore, applyMiddleware, combineReducers } from 'redux';
@@ -1221,12 +1249,12 @@ for (let saga in sagas) {
 }
 ```
 
-#### Front End Summary
+## Front End Summary
 
-1. Webpack is useful as it allows us to write code using imports and with JSX
-2. Redux is a reliable and convenient way to store and manage our application state
-3. React components often contain forms used by the end user
-4. Using React-Redux, React components can update automatically to reflect data
+1. Webpack is useful as it allows us to write code using imports and with JSX.
+2. Redux is a reliable and convenient way to store and manage our application state.
+3. React components often contain forms used by the end user.
+4. Using React-Redux, React components can update automatically to reflect data.
 
 ## Creating Persistent Data storage with Node, Express, and MongoDB
 
