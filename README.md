@@ -35,15 +35,22 @@ This README contains the _notes_ I took from the course:
     - [Sagas in Brief](#sagas-in-brief)
     - [Generators in Brief](#generators-in-brief)
       - [Example of Generator function](#example-of-generator-function)
-    - [Create saga to generate random task ID, create task dispatch action containing details](#create-saga-to-generate-random-task-id-create-task-dispatch-action-containing-details)
-    - [Create a "mock" saga to interact with the "server" (the server doesn't exist yet)](#create-a-mock-saga-to-interact-with-the-server-the-server-doesnt-exist-yet)
-    - [Implementing tasks details Route. Part 1: Displaying data](#implementing-tasks-details-route-part-1-displaying-data)
+    - [Add a button to create a _new task_](#add-a-button-to-create-a-new-task)
+    - [Add `requestTaskCreation` and `createTask` mutations](#add-requesttaskcreation-and-createtask-mutations)
+    - [Add logging to store actions](#add-logging-to-store-actions)
+      - [Add logger](#add-logger)
+      - [Add logger to `index.js`](#add-logger-to-indexjs)
+    - [Create a saga](#create-a-saga)
+      - [Add redux-saga](#add-redux-saga)
+      - [Add uuid library](#add-uuid-library)
       - [Using Mock Files During Development](#using-mock-files-during-development)
-      - [Demo](#demo)
-    - [Implementing tasks details Route. Part 2: Mutating data](#implementing-tasks-details-route-part-2-mutating-data)
-      - [Add methods which _dispatch_ actions when form elements of the task detail are interacted with](#add-methods-which-dispatch-actions-when-form-elements-of-the-task-detail-are-interacted-with)
-      - [Add clauses to **Redux** reducer which causes state to be changed in response to relevant action](#add-clauses-to-redux-reducer-which-causes-state-to-be-changed-in-response-to-relevant-action)
-      - [Front End Summary](#front-end-summary)
+      - [Create a "mock" saga to interact with the "server" (the server doesn't exist yet)](#create-a-mock-saga-to-interact-with-the-server-the-server-doesnt-exist-yet)
+    - [Add a Task Detail page](#add-a-task-detail-page)
+      - [Implementing tasks details Route. Part 1: Displaying data](#implementing-tasks-details-route-part-1-displaying-data)
+      - [Implementing tasks details Route. Part 2: Mutating data](#implementing-tasks-details-route-part-2-mutating-data)
+        - [Add methods which _dispatch_ actions when form elements of the task detail are interacted with](#add-methods-which-dispatch-actions-when-form-elements-of-the-task-detail-are-interacted-with)
+        - [Add clauses to **Redux** reducer which causes state to be changed in response to relevant action](#add-clauses-to-redux-reducer-which-causes-state-to-be-changed-in-response-to-relevant-action)
+    - [Front End Summary](#front-end-summary)
   - [Creating Persistent Data storage with Node, Express, and MongoDB](#creating-persistent-data-storage-with-node-express-and-mongodb)
     - [Installing MongoDB](#installing-mongodb)
       - [What is MongoDB?](#what-is-mongodb)
@@ -613,7 +620,7 @@ In this app, **Redux Saga** will be invoking these generators for us. For more i
 Update `TaskList.jsx`:
 
 - add a button to create a _new task_: `<button onClick={() => createNewTask(id)}>Add New</button>`.
-- add `mapDispatchToProps` to pass the new method `createNewTask` to the component. We don't pass it through the exisiting `mapStateToProps` method.
+- add `mapDispatchToProps` to pass the new method `createNewTask` to the component. We don't pass it through the existing `mapStateToProps` method.
 - add `mapDispatchToProps` to `connect` method which should provide access to `createNewTask` to the component.
 - add `createNewTask` as component property: `export const TaskList = ({tasks, name, id, createNewTask}) => (`.
 
@@ -685,7 +692,7 @@ export const createTask = (taskID, groupID, ownerID) => ({
 Update `TaskList` component:
 
 - import `requestTaskCreation` from `mutation.js`.
-- add a call to `dispacth` function in `createNewTask` method which will _dispatch_ the `requestTaskCreation` mutation with the id provided.
+- add a call to `dispatch` function in `createNewTask` method which will _dispatch_ the `requestTaskCreation` mutation with the id provided.
 
 ```jsx
 import React from 'react';
@@ -742,9 +749,9 @@ $ npm install --save redux-logger
 
 Update the `store/index.js` file:
 
-- import `createLogger` from `redux-loger`.
-- add a secong import from `redux` called `applyMiddleware`.
-- add a second argument to `createStore` for `redux-loger` to work: `applyMiddleware(createLogger())`.
+- import `createLogger` from `redux-logger`.
+- add a second import from `redux` called `applyMiddleware`.
+- add a second argument to `createStore` for `redux-logger` to work: `applyMiddleware(createLogger())`.
 
 ```js
 import { createStore, applyMiddleware } from 'redux';
@@ -781,6 +788,12 @@ We need a library to generate random strings.
 $ npm install --save uuid
 ```
 
+#### Using Mock Files During Development
+
+- Files with `.mock` extension indicate the file does not contain the true business logic.
+- Used to reduce complexity (eg., does not depend on server).
+- Mocks are commonly used in testing framework such as **Jest**.
+
 #### Create a "mock" saga to interact with the "server" (the server doesn't exist yet)
 
 Add a new **saga** at `store/sagas.mock.js`. All the **real sagas** will be communicating with the server, but until we have that, we are going to use these **mocks** that will do it on their own:
@@ -788,7 +801,7 @@ Add a new **saga** at `store/sagas.mock.js`. All the **real sagas** will be comm
 - You will need all the `import` statements.
 - `taskCreationSaga` is a **saga** to create a _new task_.
 - `take` function will stop until the specified action is dispatched. In this context, `groupID` is a property we get from the action. This is why we can log it just after.
-- The `ownerID` is hardcoded to `'U1'` because no loggin has been implemented.
+- The `ownerID` is hardcoded to `'U1'` because no login has been implemented.
 - The `taskID` needs to be a random string so we call our random generator `uuid()`.
 - `put` function will send the action to the store. The mutation we want to send is the `createTask` mutation.
 
@@ -860,19 +873,11 @@ for (let saga in sagas) {
 }
 ```
 
-## Add a Task Detail page
+### Add a Task Detail page
 
-Allows the user to modify the tasks.
+The **Task Detail** page will allow users to modify the tasks.
 
-### Implementing tasks details Route. Part 1: Displaying data
-
-#### Using Mock Files During Development
-
-- Files with `.mock` extension indicate the file does not contain the true business logic.
-- Used to reduce complexity (eg., does not depend on server).
-- Mocks are commonly used in testing framework such as **Jest**.
-
-#### Demo
+#### Implementing tasks details Route. Part 1: Displaying data
 
 1. Add route which displays the details of a single task
 2. Route will implement forms and buttons to allow user to change data
@@ -952,7 +957,7 @@ Update `components/Main.jsx`:
 
 - Add a route to the new `TaskDetail` component.
 - Import `TaskDetail` component.
-- The `match` argument is the pade id.
+- The `match` argument is the path id.
 
 ```jsx
 import React from 'react';
@@ -1033,12 +1038,12 @@ const mapDispatchToProps = (dispatch, ownProps)=>{
 export const ConnectedTaskList = connect(mapStateToProps, mapDispatchToProps)(TaskList);
 ```
 
-### Implementing tasks details Route. Part 2: Mutating data
+#### Implementing tasks details Route. Part 2: Mutating data
 
 1. Add methods which _dispatch_ actions when form elements of the task detail are interacted with
 2. Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
 
-#### Add methods which _dispatch_ actions when form elements of the task detail are interacted with
+##### Add methods which _dispatch_ actions when form elements of the task detail are interacted with
 
 Update `components/TaskDetail.jsx`:
 
@@ -1181,7 +1186,7 @@ export const setTaskName = (id, name) => ({
 });
 ```
 
-#### Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
+##### Add clauses to **Redux** reducer which causes state to be changed in response to relevant action
 
 Update `store/index.js` _(reducer)_:
 
@@ -1249,7 +1254,7 @@ for (let saga in sagas) {
 }
 ```
 
-## Front End Summary
+### Front End Summary
 
 1. Webpack is useful as it allows us to write code using imports and with JSX.
 2. Redux is a reliable and convenient way to store and manage our application state.
