@@ -14,10 +14,10 @@ This README contains the _notes_ I took from the course:
   - [Security Considerations](#security-considerations)
   - [Webpack setup](#webpack-setup)
     - [Install Webpack, Babel and other libraries needed for bundling and transpilation](#install-webpack-babel-and-other-libraries-needed-for-bundling-and-transpilation)
-    - [Create a `.babelrc` file](#create-a-babelrc-file)
-    - [Create a `webpack.config.js` file](#create-a-webpackconfigjs-file)
-    - [Create an `index.js` file](#create-an-indexjs-file)
-    - [Create an `index.html` file](#create-an-indexhtml-file)
+    - [Add a `.babelrc` file](#add-a-babelrc-file)
+    - [Add a `webpack.config.js` file](#add-a-webpackconfigjs-file)
+    - [Add an `index.js` file](#add-an-indexjs-file)
+    - [Add an `index.html` file](#add-an-indexhtml-file)
     - [Define launch scripts](#define-launch-scripts)
     - [Run the application](#run-the-application)
   - [Add Redux](#add-redux)
@@ -183,6 +183,8 @@ console.log("Hello world!!!");
 
 You will need to add the `index.html` file in the `dist` folder. Add the folder to the project root if you don't have it and don't forget to put the `dist` folder in the `.gitignore` file:
 
+> **NOTE:** alternatively, you can setup [html-webpack-plugin](https://webpack.js.org/guides/output-management/#setting-up-htmlwebpackplugin). See the [getting started](https://webpack.js.org/guides/getting-started/#creating-a-bundle) tutorial from Webpack for more info.
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -208,8 +210,6 @@ You will need to add the `index.html` file in the `dist` folder. Add the folder 
 </body>
 </html>
 ```
-
-> **NOTE:** alternatively, you can setup [html-webpack-plugin](https://webpack.js.org/guides/output-management/#setting-up-htmlwebpackplugin). See the [getting started](https://webpack.js.org/guides/getting-started/#creating-a-bundle) tutorial from Webpack for more info.
 
 ### Define launch scripts
 
