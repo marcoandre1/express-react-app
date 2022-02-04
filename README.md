@@ -104,7 +104,7 @@ npm install --save-dev babel-loader
 
 > **NOTE:** See this [answer](https://stackoverflow.com/questions/44931479/compiling-vs-transpiling/44932758#44932758) in Stack Overflow for a difference between **compiling** and **transpiling**.
 
-### Create a `.babelrc` file
+### Add a `.babelrc` file
 
 The `.babelrc` file, is a JSON file that [Babel](https://babeljs.io/docs/en/) automatically checks for to define how `.jsx` and ES6 should be handled.
 
@@ -126,7 +126,7 @@ The content of the JSON file should be the following:
 }
 ```
 
-### Create a `webpack.config.js` file
+### Add a `webpack.config.js` file
 
 The `webpack.config.js` file describes how our app should be bundled.  
 
@@ -155,7 +155,10 @@ module.exports = {
         extensions: ['.js','.jsx']
     },
     devServer: {
-        historyApiFallback: true
+        historyApiFallback: true,
+        port: 8080,
+        host: 'localhost',
+        open: true
     },
     module: {
         rules: [{
@@ -166,7 +169,9 @@ module.exports = {
 }
 ```
 
-### Create an `index.js` file
+> **NOTE:** As of [Webpack 5](https://webpack.js.org/blog/2020-10-10-webpack-5-release/), we need to specify `port`, `host` and `open` options in `devServer` configuration. For more info, see: [error: option '--open' argument missing](https://github.com/webpack/webpack-cli/issues/2001) and [webpack output is served from undefined](https://github.com/webpack/webpack-dev-server/issues/2745).  
+
+### Add an `index.js` file
 
 - Add the entry file at `./src/app/index.js`:
 
@@ -174,21 +179,37 @@ module.exports = {
 console.log("Hello world!!!");
 ```
 
-### Create an `index.html` file
+### Add an `index.html` file
 
-- You will need to add the file at the root folder:
+You will need to add the `index.html` file in the `dist` folder. Add the folder to the project root if you don't have it and don't forget to put the `dist` folder in the `.gitignore` file:
 
 ```html
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <title>
-    My Application
-  </title>
+    <!-- Required meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+    <title>Daily Organizer</title>
 </head>
-<body>
-  <div id="app"></div>
-  <script src="/bundle.js"></script>
+<body class="container">
+    <div id="app"></div>
+    <script src="/bundle.js"></script>
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
 </body>
+</html>
 ```
+
+> **NOTE:** alternatively, you can setup [html-webpack-plugin](https://webpack.js.org/guides/output-management/#setting-up-htmlwebpackplugin). See the [getting started](https://webpack.js.org/guides/getting-started/#creating-a-bundle) tutorial from Webpack for more info.
 
 ### Define launch scripts
 
@@ -201,12 +222,16 @@ console.log("Hello world!!!");
 }
 ```
 
+> **NOTE:** As of [Webpack 5](https://webpack.js.org/blog/2020-10-10-webpack-5-release/), the script command is not anymore `webpack-dev-server` but `webpack serve`. For more info, see: [webpack-dev-server](https://github.com/webpack/webpack-dev-server#webpack-dev-server) and [DevServer](https://webpack.js.org/configuration/dev-server/).  
+
 ### Run the application
 
 ```console
 # Run the dev script
 $ npm run dev
 ```
+
+> Because we specify the `open: true` option in `webpack.config.js`, your browser should open automatically. If not, navigate to <http://localhost:8080/>. You should see `Daily Organizer` displayed on the top left of the screen.  
 
 ## Add Redux
 
